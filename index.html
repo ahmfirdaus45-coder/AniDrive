@@ -1,0 +1,3921 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+  <title>AniDrive - Premium Streaming Experience V30</title>
+  <link id="dynamic-favicon" rel="icon" type="image/png" href="data:image/svg+xml;charset=UTF-8,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 600 900'%3E%3Crect width='600' height='900' fill='%23111b2d'/%3E%3Ctext x='50%25' y='48%25' fill='%23f47521' font-size='64' font-family='Arial' font-weight='700' text-anchor='middle'%3EAniDrive%3C/text%3E%3Ctext x='50%25' y='56%25' fill='%2394a3b8' font-size='28' font-family='Arial' text-anchor='middle'%3EPoster%3C/text%3E%3C/svg%3E">
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script src="https://unpkg.com/lucide@latest"></script>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800;900&display=swap" rel="stylesheet">
+    <style>
+    body {
+      background-color: #030712;
+      background-image: radial-gradient(circle at 15% 20%, rgba(244,117,33,.18), transparent 28%), radial-gradient(circle at 85% 10%, rgba(59,130,246,.14), transparent 30%), linear-gradient(135deg, #030712 0%, #071225 48%, #030712 100%);
+      background-attachment: fixed;
+      background-position: center center;
+      background-size: cover;
+      background-repeat: no-repeat;
+      font-family: 'Plus Jakarta Sans', -apple-system, BlinkMacSystemFont, sans-serif;
+    }
+    .no-scrollbar::-webkit-scrollbar { display: none; }
+    .no-scrollbar { -ms-overflow-style: none; scrollbar-width: none; }
+    
+    .banner-slide {
+      transition: opacity 0.8s ease-in-out;
+      background-size: cover;
+      background-position: center center;
+      image-rendering: -webkit-optimize-contrast;
+    }
+
+    .edge-fade-mask {
+      -webkit-mask-image: linear-gradient(to right, transparent 0%, rgba(0,0,0,0.95) 4%, black 8%),
+                          linear-gradient(to top, transparent 0%, rgba(0,0,0,0.95) 4%, black 8%);
+      -webkit-mask-composite: source-in;
+      mask-image: linear-gradient(to right, transparent 0%, rgba(0,0,0,0.95) 4%, black 8%),
+                  linear-gradient(to top, transparent 0%, rgba(0,0,0,0.95) 4%, black 8%);
+      mask-composite: intersect;
+    }
+
+    .banner-clean-title {
+      color: #ffffff !important;
+      font-weight: 900 !important;
+      letter-spacing: -0.025em;
+      filter: drop-shadow(0 4px 12px rgba(0, 0, 0, 0.9));
+    }
+    
+    .banner-clean-text {
+      color: #ffffff !important;
+      filter: drop-shadow(0 2px 6px rgba(0, 0, 0, 0.85));
+    }
+
+    /* Video scaling modes */
+    .video-fit-contain { object-fit: contain !important; }
+    .video-fit-cover { object-fit: cover !important; }
+    .video-fit-fill { object-fit: fill !important; }
+
+    /* 21:9 Zoom mode: crop top/bottom without stretching the picture. */
+    #video-wrapper-container.video-aspect-21-9 {
+      max-width: none !important;
+      width: 100% !important;
+      padding-left: 0 !important;
+      padding-right: 0 !important;
+    }
+    #video-wrapper-container.video-aspect-21-9 > div {
+      width: 100% !important;
+      max-width: none !important;
+      aspect-ratio: 21 / 9 !important;
+      max-height: none !important;
+      height: auto !important;
+      border-radius: 0 !important;
+    }
+    #video-wrapper-container.video-aspect-21-9 #native-video-player {
+      width: 100% !important;
+      height: 100% !important;
+      object-fit: cover !important;
+    }
+    /* V17: player dibuat sedikit lebih lebar dan tinggi pada desktop, tanpa mengubah mode normal/21:9. */
+    @media (min-width: 768px) {
+      #video-wrapper-container {
+        max-width: 96vw !important;
+        padding-left: 6px !important;
+        padding-right: 6px !important;
+      }
+      #video-wrapper-container > div {
+        width: 100% !important;
+        max-width: none !important;
+        max-height: 78vh !important;
+      }
+    }
+
+    /* In landscape/fullscreen, make the 21:9 player use the available screen. */
+    @media (orientation: landscape) {
+      #video-wrapper-container.video-aspect-21-9 > div {
+        max-height: 100vh !important;
+      }
+    }
+
+
+    /* MOBILE VIDEO FIX:
+       Pada layar mobile, player normal harus memakai rasio 16:9 penuh.
+       Sebelumnya tinggi player bisa menyusut sehingga video terlihat terlalu kecil.
+       Mode 21:9 tetap dikendalikan oleh class .video-aspect-21-9. */
+    @media (max-width: 767px) {
+      #player-screen {
+        width: 100vw !important;
+        max-width: 100vw !important;
+      }
+
+      #video-wrapper-container {
+        width: 100vw !important;
+        max-width: 100vw !important;
+        padding: 0 !important;
+        margin: 0 !important;
+        flex: 0 0 auto !important;
+      }
+
+      #video-wrapper-container > div {
+        width: 100vw !important;
+        max-width: 100vw !important;
+        height: 56.25vw !important;
+        min-height: 56.25vw !important;
+        max-height: none !important;
+        aspect-ratio: 16 / 9 !important;
+        border-radius: 0 !important;
+        border-left: 0 !important;
+        border-right: 0 !important;
+      }
+
+      #video-wrapper-container #native-video-player {
+        width: 100% !important;
+        height: 100% !important;
+      }
+
+      /* Jangan biarkan aturan 21:9 mengubah tinggi mode Normal. */
+      #video-wrapper-container:not(.video-aspect-21-9) > div {
+        height: 56.25vw !important;
+        min-height: 56.25vw !important;
+        aspect-ratio: 16 / 9 !important;
+      }
+
+      /* Saat mode 21:9 aktif, tetap gunakan rasio zoom yang sudah dibuat. */
+      #video-wrapper-container.video-aspect-21-9 > div {
+        height: 42.857vw !important;
+        min-height: 42.857vw !important;
+        aspect-ratio: 21 / 9 !important;
+      }
+    }
+
+    /* =========================================================================
+       TEMA TERANG (LIGHT MODE)
+       ========================================================================= */
+    body.light-mode {
+      background-color: #f0f7ff !important;
+      background-image: none !important;
+      color: #0f172a !important;
+    }
+    
+    .light-mode .bg-black { background-color: #ffffff !important; }
+    .light-mode .bg-\[\#111111\], .light-mode .bg-\[\#161616\], .light-mode .bg-\[\#181818\] { background-color: #ffffff !important; }
+    .light-mode .bg-zinc-950 { background-color: #eaf4ff !important; }
+    .light-mode .bg-zinc-900 { background-color: #e0f0fe !important; }
+    .light-mode .bg-zinc-800 { background-color: #bae0fd !important; }
+    .light-mode .bg-black\/50 { background-color: #f8fbff !important; }
+    .light-mode .bg-black\/60 { background-color: #f0f7ff !important; }
+    .light-mode .bg-black\/95 { background-color: rgba(240, 247, 255, 0.95) !important; }
+    .light-mode .bg-black\/85, .light-mode .bg-black\/80 { background-color: rgba(240, 247, 255, 0.85) !important; }
+    .light-mode .bg-black\/75, .light-mode .bg-black\/70 { background-color: rgba(240, 247, 255, 0.75) !important; }
+    .light-mode .bg-black\/40 { background-color: rgba(224, 240, 254, 0.6) !important; }
+    
+    .light-mode .hover\:bg-zinc-900:hover { background-color: #d0e8fc !important; }
+    .light-mode .hover\:bg-zinc-800:hover { background-color: #bae0fd !important; }
+
+    .light-mode .text-white { color: #0f172a !important; }
+    .light-mode .text-zinc-100, .light-mode .text-zinc-200 { color: #1e293b !important; }
+    .light-mode .text-zinc-300 { color: #334155 !important; }
+    .light-mode .text-zinc-400 { color: #475569 !important; }
+    .light-mode .text-zinc-500 { color: #64748b !important; }
+    .light-mode .text-\[\#f47521\] { color: #d96218 !important; }
+    .light-mode .hover\:text-white:hover { color: #0f172a !important; }
+
+    .light-mode .border-zinc-900, .light-mode .border-zinc-900\/80, .light-mode .border-zinc-900\/60 { border-color: #bae0fd !important; }
+    .light-mode .border-zinc-800, .light-mode .border-zinc-800\/80 { border-color: #cde6fe !important; }
+    .light-mode .border-zinc-700, .light-mode .border-zinc-700\/60, .light-mode .border-zinc-700\/50 { border-color: #90cdf4 !important; }
+
+    .light-mode select, .light-mode input {
+      color: #0f172a !important;
+      background-color: #ffffff !important;
+    }
+
+    #desktop-hero-box {
+      background-color: #000000 !important;
+    }
+    #desktop-hero-box * {
+      color: #ffffff !important;
+    }
+  
+      #dropbox-preview-fallback {
+        position: absolute; inset: 0; width: 100%; height: 100%; border: 0;
+        background: #000; display: none; z-index: 5;
+      }
+      #dropbox-preview-open { display: none; }
+</style>
+
+<style id="v9-no-login">
+#login-screen, #login-modal, .login-screen, .login-modal, .auth-modal { display:none !important; }
+</style>
+
+<meta name="anidrive-version" content="V33 BRANDING TEMP-LINK + BACK HISTORY + POPULAR MOBILE FIX">
+<style id="anidrive-final-visual-fixes">
+  /* Light mode: the site toolbar stays white, while the video stage stays black. */
+  .light-mode nav.fixed.top-0 {
+    background: #ffffff !important;
+    color: #0f172a !important;
+    border-bottom-color: #e5e7eb !important;
+    backdrop-filter: none !important;
+    -webkit-backdrop-filter: none !important;
+  }
+  .light-mode nav.fixed.top-0 a[onclick="goBackToHome()"] > span { color: #111827 !important; }
+  .light-mode #player-screen,
+  .light-mode #player-screen #video-wrapper-container,
+  .light-mode #player-screen #video-wrapper-container > div,
+  .light-mode #player-screen #native-video-player {
+    background: #000000 !important;
+  }
+  .light-mode #player-screen .text-white { color: #ffffff !important; }
+
+  /* Mobile: keep the player full width and add breathing room below the toolbar. */
+  @media (max-width: 767px) {
+    #player-screen { padding-top: 12px !important; }
+    #player-screen #video-wrapper-container { margin-top: 0 !important; }
+    #player-screen #video-wrapper-container > div {
+      width: 100vw !important;
+      height: 56.25vw !important;
+      min-height: 56.25vw !important;
+    }
+  }
+
+  /* Always show a usable logo while Dropbox branding is loading. */
+  #app-logo { background: #111827; object-fit: cover; }
+
+  /* Lightweight fallback if the remote banner is unavailable. */
+  #banner-slider-container:empty {
+    background: radial-gradient(circle at 70% 35%, rgba(244,117,33,.22), transparent 25%),
+                linear-gradient(135deg, #0b1220, #111827 55%, #05070b);
+  }
+</style>
+
+<style id="v18-performance">
+  img { content-visibility: auto; }
+  .will-change-transform { will-change: transform; }
+  #catalog-grid > *, #popular-carousel > * { contain: layout paint style; }
+
+  /* Popular mobile: tinggi kartu mengikuti isi, bukan tinggi kartu terpanjang. */
+  @media (max-width: 767px) {
+    #popular-carousel {
+      align-items: flex-start !important;
+      height: auto !important;
+      min-height: 0 !important;
+    }
+    #popular-carousel > * {
+      align-self: flex-start !important;
+      flex: 0 0 160px !important;
+      width: 160px !important;
+      height: auto !important;
+      min-height: 0 !important;
+      max-height: none !important;
+      contain: none !important;
+    }
+    #popular-carousel > * > div:first-child {
+      flex: 0 0 auto !important;
+      width: 100% !important;
+      height: auto !important;
+      aspect-ratio: 2 / 3 !important;
+      min-height: 0 !important;
+    }
+    #popular-carousel > * > div:last-child {
+      flex: 0 0 auto !important;
+      height: auto !important;
+      min-height: 0 !important;
+      padding-bottom: 10px !important;
+    }
+  }
+</style>
+</head>
+<body class="text-white min-h-screen select-none transition-colors duration-300">
+
+  <div id="app-main-wrapper">
+    
+    <div id="sync-toast" class="fixed bottom-6 right-6 z-[160] bg-[#0d1527]/90 border border-blue-900/40 text-white px-4 py-3 rounded-xl shadow-2xl flex items-center gap-3 transition-all duration-300 transform translate-y-24 opacity-0 pointer-events-none backdrop-blur-md">
+      <div id="sync-toast-icon" class="w-7 h-7 rounded-full bg-emerald-500/20 text-emerald-400 flex items-center justify-center">
+        <i data-lucide="check" class="w-4 h-4"></i>
+      </div>
+      <div>
+        <h4 id="sync-toast-title" class="text-xs font-bold text-white">Notifikasi</h4>
+        <p id="sync-toast-desc" class="text-[10px] text-zinc-400">Proses berhasil dijalankan.</p>
+      </div>
+    </div>
+
+    <nav class="fixed top-0 w-full z-[150] flex items-center justify-between px-2.5 sm:px-6 lg:px-12 py-2 sm:py-3.5 bg-black/90 border-b border-zinc-800/80 backdrop-blur-md gap-1.5 sm:gap-4">
+      <div class="flex items-center gap-2 sm:gap-6 min-w-0 flex-1 overflow-hidden">
+        <a href="javascript:void(0)" onclick="goBackToHome()" class="flex items-center gap-1.5 sm:gap-3 cursor-pointer transition hover:opacity-90 flex-shrink-0">
+          <img id="app-logo" src="data:image/svg+xml;charset=UTF-8,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'%3E%3Crect width='100' height='100' rx='20' fill='%23111827'/%3E%3Ccircle cx='50' cy='50' r='32' fill='%23f47521'/%3E%3Cpath d='M39 34h22c7 0 12 5 12 12v8c0 7-5 12-12 12H39c-7 0-12-5-12-12v-8c0-7 5-12 12-12z' fill='%23fff'/%3E%3Cpath d='M43 42h14v5H43zm0 9h14v5H43z' fill='%23f47521'/%3E%3C/svg%3E" alt="Logo" class="h-6 w-6 sm:h-8 sm:w-8 rounded-md object-cover border border-zinc-800 shadow" >
+          <span class="text-sm sm:text-xl font-black tracking-tight text-white flex items-center">
+            Ani<span class="text-[#f47521]">Drive</span>
+          </span>
+        </a>
+
+        <div id="category-tabs" class="flex items-center gap-1 sm:gap-2 overflow-x-auto no-scrollbar py-0.5 max-w-full">
+          <button onclick="switchCategoryFromNav('ANIME')" id="tab-ANIME" class="px-2.5 sm:px-4 py-0.5 sm:py-1.5 rounded-full text-[10px] sm:text-xs font-bold uppercase transition bg-[#f47521] text-white shadow-sm whitespace-nowrap">ANIME</button>
+          <button onclick="switchCategoryFromNav('MOVIE')" id="tab-MOVIE" class="px-2.5 sm:px-4 py-0.5 sm:py-1.5 rounded-full text-[10px] sm:text-xs font-bold uppercase transition bg-black/60 text-zinc-300 hover:bg-black/80 hover:text-white border border-zinc-800 whitespace-nowrap">MOVIE</button>
+          <button onclick="switchCategoryFromNav('HENTAI')" id="tab-HENTAI" class="px-2.5 sm:px-4 py-0.5 sm:py-1.5 rounded-full text-[10px] sm:text-xs font-bold uppercase transition bg-black/60 text-zinc-300 hover:bg-black/80 hover:text-white border border-zinc-800 whitespace-nowrap">HENTAI</button>
+          <button onclick="switchCategoryFromNav('SEX')" id="tab-SEX" class="px-2.5 sm:px-4 py-0.5 sm:py-1.5 rounded-full text-[10px] sm:text-xs font-bold uppercase transition bg-black/60 text-zinc-300 hover:bg-black/80 hover:text-white border border-zinc-800 whitespace-nowrap">SEX</button>
+        </div>
+      </div>
+
+      <div class="flex items-center gap-1.5 sm:gap-4 text-zinc-300 flex-shrink-0">
+        <button onclick="toggleTheme()" class="hover:text-[#f47521] transition p-1" title="Ganti Tema">
+          <i id="theme-icon" data-lucide="sun" class="w-3.5 h-3.5 sm:w-5 sm:h-5"></i>
+        </button>
+
+        <div class="relative flex items-center">
+          <div id="search-bar-container" class="hidden absolute right-0 top-1/2 -translate-y-1/2 w-48 sm:w-80 bg-black/95 border border-zinc-700 rounded-full px-2.5 py-1 items-center gap-1.5 shadow-2xl z-50 backdrop-blur-md">
+            <i data-lucide="search" class="w-3.5 h-3.5 text-[#f47521]"></i>
+            <input type="text" id="search-input" oninput="handleSearch(this.value)" placeholder="Cari anime..." class="bg-transparent text-[11px] sm:text-xs text-white placeholder-zinc-500 outline-none w-full">
+            <button onclick="toggleSearchBar()" class="text-zinc-400 hover:text-white"><i data-lucide="x" class="w-3 h-3"></i></button>
+          </div>
+          <button onclick="toggleSearchBar()" class="hover:text-[#f47521] transition p-1" title="Cari Anime">
+            <i data-lucide="search" class="w-3.5 h-3.5 sm:w-5 sm:h-5"></i>
+          </button>
+        </div>
+
+        <button onclick="openWatchlistModal()" class="hover:text-[#f47521] transition p-1 relative" title="Daftar Saya">
+          <i data-lucide="bookmark" class="w-3.5 h-3.5 sm:w-5 sm:h-5"></i>
+          <span id="watchlist-badge" class="hidden absolute -top-1 -right-1 bg-[#f47521] text-white text-[8px] font-black rounded-full w-3.5 h-3.5 flex items-center justify-center shadow">0</span>
+        </button>
+
+        <div class="relative group">
+          <button class="w-5 h-5 sm:w-7 sm:h-7 rounded-full bg-[#f47521] flex items-center justify-center text-white font-bold text-xs shadow cursor-pointer">
+            <i data-lucide="user" class="w-3.5 h-3.5 sm:w-4 sm:h-4"></i>
+          </button>
+          <div class="absolute right-0 top-full mt-2 w-48 bg-[#0a101f]/95 border border-zinc-800 rounded-xl p-2 shadow-2xl hidden group-hover:block z-50 backdrop-blur-md">
+            <div class="px-3 py-2 border-b border-zinc-800/80">
+              <p class="text-[10px] text-zinc-500 uppercase font-bold tracking-wider">Akun Masuk</p>
+              <p class="text-xs font-semibold text-zinc-200 truncate">hsword98@gmail.com</p>
+            </div>
+            <button onclick="handleLogout()" class="w-full flex items-center gap-2 px-3 py-2 text-xs text-red-400 hover:bg-zinc-800/60 rounded-lg transition mt-1">
+              <i data-lucide="log-out" class="w-3.5 h-3.5"></i>
+              <span>Keluar (Log Out)</span>
+            </button>
+          </div>
+        </div>
+
+        <button id="btn-sync-cloud" onclick="manualSyncCloud()" class="text-[10px] sm:text-xs bg-black/60 hover:bg-black/90 text-zinc-200 p-1 sm:px-3.5 sm:py-1.5 rounded-full flex items-center gap-1 transition border border-zinc-800 active:scale-95 shadow " title="Sync Cloud">
+          <i id="sync-icon" data-lucide="refresh-cw" class="w-3 h-3 sm:w-3.5 sm:h-3.5 text-[#f47521]"></i> 
+          <span id="sync-btn-text" class="hidden md:inline">Sync Cloud</span>
+        </button>
+      </div>
+    </nav>
+
+    <div id="watchlist-modal" class="fixed inset-0 z-[180] bg-black/80 backdrop-blur-md hidden items-center justify-center p-3 sm:p-6">
+      <div class="bg-[#0b1220]/95 border border-blue-900/40 rounded-2xl max-w-5xl w-full max-h-[88vh] flex flex-col overflow-hidden shadow-[0_10px_40px_rgba(0,0,0,0.9)] backdrop-blur-md">
+        <div class="flex items-center justify-between px-4 sm:px-6 py-3.5 border-b border-zinc-800/80 bg-black/40">
+          <div class="flex items-center gap-2.5 sm:gap-3">
+            <div class="w-7 h-7 sm:w-8 sm:h-8 rounded-lg bg-[#f47521]/10 border border-[#f47521]/30 flex items-center justify-center text-[#f47521]">
+              <i data-lucide="bookmark" class="w-3.5 h-3.5 sm:w-4 sm:h-4"></i>
+            </div>
+            <div>
+              <h3 class="text-sm sm:text-base font-bold text-white tracking-wide">Daftar Saya</h3>
+              <p id="watchlist-count-sub" class="text-[10px] sm:text-[11px] text-zinc-400">0 anime tersimpan</p>
+            </div>
+          </div>
+          <button onclick="closeWatchlistModal()" class="text-zinc-400 hover:text-white p-1.5 rounded-full hover:bg-zinc-800 transition">
+            <i data-lucide="x" class="w-4 h-4 sm:w-5 sm:h-5"></i>
+          </button>
+        </div>
+        <div id="watchlist-grid" class="p-4 sm:p-6 overflow-y-auto grid grid-cols-3 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-2.5 sm:gap-5 flex-1 no-scrollbar"></div>
+      </div>
+    </div>
+
+    <div id="main-catalog-view" class="pt-12 sm:pt-16">
+      
+      <div class="w-full max-w-[1400px] mx-auto px-0 sm:px-6 lg:px-12 pt-0 sm:pt-4">
+        <header class="relative w-full aspect-video max-h-[70vh] sm:rounded-2xl flex items-end pb-4 sm:pb-10 px-4 sm:px-8 lg:px-10 overflow-hidden bg-zinc-950 group shadow-2xl border border-zinc-900/60">
+          <div id="banner-slider-container" class="absolute inset-0 w-full h-full"></div>
+
+          <div class="absolute inset-0 bg-gradient-to-r from-black/60 via-black/20 to-transparent pointer-events-none"></div>
+          <div class="absolute inset-x-0 bottom-0 h-20 bg-gradient-to-t from-black/60 to-transparent pointer-events-none"></div>
+
+          <div class="relative z-10 w-full flex flex-col md:flex-row items-end justify-between gap-3 max-w-5xl">
+            <div class="w-full md:w-3/4 space-y-1.5 sm:space-y-2.5">
+              <div class="flex items-center gap-2">
+                <span id="hero-category" class="bg-[#f47521] text-white text-[9px] sm:text-[10px] font-black uppercase tracking-widest px-2 py-0.5 rounded shadow">ANIME</span>
+                <span class="bg-black/60 text-white text-[9px] sm:text-[10px] font-bold px-2 py-0.5 rounded border border-white/20 backdrop-blur-sm">16:9 4K DIRECT</span>
+              </div>
+              <h1 id="hero-title" class="banner-clean-title text-xl sm:text-2xl md:text-4xl">Memuat Banner...</h1>
+              <p id="hero-desc" class="banner-clean-text text-[11px] sm:text-sm line-clamp-2">Koleksi tayangan video resmi dari Dropbox AniDrive.</p>
+              <div class="flex items-center gap-3 pt-0.5" id="hero-actions"></div>
+            </div>
+          </div>
+
+          <button onclick="prevBanner()" class="absolute left-2 sm:left-3 top-1/2 -translate-y-1/2 z-20 bg-black/60 hover:bg-black/90 text-white p-1.5 sm:p-2 rounded-full backdrop-blur-sm opacity-0 group-hover:opacity-100 transition duration-300">
+            <i data-lucide="chevron-left" class="w-4 h-4 sm:w-5 sm:h-5"></i>
+          </button>
+          <button onclick="nextBanner()" class="absolute right-2 sm:right-3 top-1/2 -translate-y-1/2 z-20 bg-black/60 hover:bg-black/90 text-white p-1.5 sm:p-2 rounded-full backdrop-blur-sm opacity-0 group-hover:opacity-100 transition duration-300">
+            <i data-lucide="chevron-right" class="w-4 h-4 sm:w-5 sm:h-5"></i>
+          </button>
+
+          <div id="banner-dots" class="absolute bottom-3 sm:bottom-4 right-4 sm:right-8 z-20 flex items-center gap-1.5"></div>
+        </header>
+      </div>
+
+      <main class="space-y-8 sm:space-y-10 px-4 sm:px-6 lg:px-12 py-6 sm:py-8 relative z-20">
+        
+        <section id="continue-watching-section" class="hidden space-y-3 pb-2 border-b border-zinc-800/60">
+          <div class="flex items-center justify-between">
+            <div class="flex items-center gap-2">
+              <span class="w-1.5 h-3.5 sm:h-4 bg-[#f47521] rounded-full inline-block"></span>
+              <h2 class="text-sm sm:text-base font-bold text-white tracking-wide flex items-center gap-2">
+                <i data-lucide="history" class="w-4 h-4 text-[#f47521]"></i> Lanjutkan Menonton
+              </h2>
+            </div>
+            <button onclick="clearContinueWatchingCloud()" class="text-[11px] sm:text-xs text-zinc-500 hover:text-red-400 transition">Hapus Riwayat</button>
+          </div>
+
+          <div id="continue-watching-grid" class="flex items-stretch gap-3 overflow-x-auto no-scrollbar py-1 snap-x"></div>
+        </section>
+
+        <section id="popular-section" class="space-y-3 pt-2">
+          <div class="flex items-center justify-between">
+            <h2 class="text-sm sm:text-lg font-bold text-white tracking-wide flex items-center gap-2">
+              <span class="w-1.5 h-3.5 bg-[#f47521] rounded-full inline-block"></span>
+              Popular
+            </h2>
+          </div>
+          
+          <div id="popular-carousel" class="flex items-start gap-3 sm:gap-4 overflow-x-auto no-scrollbar py-1 snap-x"></div>
+        </section>
+
+        <section class="space-y-4 sm:space-y-6">
+          <div class="flex flex-wrap items-center justify-between gap-3">
+            <div class="flex items-center gap-2 sm:gap-3">
+              <h2 id="section-title" class="text-base sm:text-xl font-bold text-zinc-100">Koleksi Anime</h2>
+              <span id="item-count" class="text-[11px] sm:text-xs text-zinc-400">0 Judul</span>
+            </div>
+
+            <div class="flex items-center gap-2">
+              <label for="sort-select" class="text-[11px] sm:text-xs text-zinc-400 flex items-center gap-1">
+                <i data-lucide="arrow-up-down" class="w-3.5 h-3.5"></i> Urutkan:
+              </label>
+              <select id="sort-select" onchange="applySorting()" class="bg-black/60 text-zinc-200 text-[11px] sm:text-xs rounded-full px-2.5 sm:px-3 py-1 sm:py-1.5 border border-zinc-800 outline-none cursor-pointer backdrop-blur-sm">
+                <option value="popular">🔥 Populer</option>
+                <option value="newest">Terbaru</option>
+                <option value="oldest">Terlama</option>
+                <option value="title_asc">A - Z</option>
+                <option value="title_desc">Z - A</option>
+              </select>
+            </div>
+          </div>
+          
+          <div id="status-msg" class="py-12 text-center text-zinc-400 text-xs sm:text-sm">
+            Memuat judul anime dari Dropbox...
+          </div>
+          
+          <div class="grid grid-cols-3 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-6 gap-2.5 sm:gap-4" id="catalog-grid"></div>
+        </section>
+
+
+
+      </main>
+    </div>
+
+    <div id="crunchyroll-web-detail" class="fixed inset-0 z-40 bg-black/95 backdrop-blur-2xl overflow-y-auto hidden flex-col pt-12 sm:pt-16 pb-28 md:pb-24 no-scrollbar">
+      
+      <div class="w-full max-w-[1400px] mx-auto px-0 md:px-6 lg:px-12 pt-0 md:pt-4">
+        <div id="desktop-hero-box" class="relative w-full aspect-[4/3] md:aspect-video max-h-[55vh] md:max-h-[60vh] overflow-hidden flex items-end md:items-center bg-black md:rounded-2xl border-b md:border border-zinc-900/60 shadow-2xl">
+          
+          <img id="web-detail-banner" src="" alt="Banner Cover" class="edge-fade-mask absolute right-0 top-0 w-full md:w-[68%] h-full object-cover object-top md:object-center filter brightness-100 contrast-105">
+
+          <div class="absolute inset-0 bg-gradient-to-t md:bg-gradient-to-r from-black via-black/60 md:via-black/20 to-transparent w-full md:w-[60%] pointer-events-none"></div>
+
+          <div class="relative z-10 w-full px-4 sm:px-6 lg:px-10 py-4 sm:py-6">
+            <button onclick="closeCrunchyrollWebDetail()" class="hidden md:inline-flex banner-clean-text items-center gap-2 text-xs font-bold transition mb-3 bg-black/70 px-3.5 py-1.5 rounded-full backdrop-blur-md border border-white/20 hover:border-[#f47521]">
+              <i data-lucide="arrow-left" class="w-4 h-4 text-[#f47521]"></i> Kembali ke Katalog
+            </button>
+
+            <div class="max-w-lg lg:max-w-xl space-y-2.5 sm:space-y-3.5">
+              <h1 id="web-detail-title" class="banner-clean-title text-xl sm:text-2xl md:text-4xl leading-tight">
+                Judul Anime
+              </h1>
+
+              <div class="banner-clean-text flex flex-wrap items-center gap-2 text-[11px] sm:text-xs font-semibold">
+                <span class="border border-white/30 bg-black/70 px-2 py-0.5 rounded text-[10px] sm:text-[11px] font-bold">16+</span>
+                <span>•</span>
+                <span class="text-zinc-200">Sulih Suara English | Takarir</span>
+                <span>•</span>
+                <span class="underline decoration-white/40 underline-offset-2">Petualangan, Drama, Shounen</span>
+              </div>
+
+              <div class="banner-clean-text flex items-center gap-2 text-[11px] sm:text-xs font-medium">
+                <div class="flex text-amber-400 text-xs sm:text-sm">
+                  <i data-lucide="star" class="w-3.5 h-3.5 fill-current"></i>
+                  <i data-lucide="star" class="w-3.5 h-3.5 fill-current"></i>
+                  <i data-lucide="star" class="w-3.5 h-3.5 fill-current"></i>
+                  <i data-lucide="star" class="w-3.5 h-3.5 fill-current"></i>
+                  <i data-lucide="star-half" class="w-3.5 h-3.5 fill-current"></i>
+                </div>
+                <span>Rata-rata:</span>
+                <span class="font-bold text-white">4.8 (92,3R)</span>
+              </div>
+
+              <div class="flex items-center gap-6 pt-1">
+                <button id="web-detail-play-btn" class="bg-[#f47521] hover:bg-[#ff8533] text-white font-extrabold px-6 py-2.5 rounded-xl flex items-center gap-2.5 transition shadow-2xl text-xs tracking-wider uppercase active:scale-95 border border-white/10">
+                  <i data-lucide="play" class="w-4 h-4 fill-current text-white"></i> <span>START WATCHING E1</span>
+                </button>
+                <button onclick="toggleCurrentAnimeWatchlist()" id="web-detail-bookmark-btn" class="p-2.5 bg-black/70 hover:bg-zinc-800 border border-white/20 rounded-xl text-white transition backdrop-blur-md" title="Tambah ke Daftar Saya">
+                  <i data-lucide="bookmark" class="w-4 h-4"></i>
+                </button>
+                <button class="p-2.5 bg-black/70 hover:bg-zinc-800 border border-white/20 rounded-xl text-white transition backdrop-blur-md">
+                  <i data-lucide="share-2" class="w-4 h-4"></i>
+                </button>
+              </div>
+
+              <div class="pt-1 space-y-1">
+                <p id="web-detail-desc" class="banner-clean-text text-[11px] sm:text-xs leading-relaxed line-clamp-2 font-normal opacity-95">
+                  Kisah perjalanan epik serial anime pilihan dari Dropbox AniDrive.
+                </p>
+                <button onclick="toggleWebDesc()" id="btn-web-more-desc" class="text-[#f47521] text-[10px] sm:text-[11px] font-bold uppercase tracking-wider hover:underline">
+                  Detail Lainnya
+                </button>
+              </div>
+            </div>
+
+          </div>
+        </div>
+      </div>
+
+      <div class="w-full max-w-[1400px] mx-auto px-4 sm:px-6 lg:px-12 pt-4">
+        <div class="flex items-center gap-6 border-b border-zinc-800 text-xs font-bold pb-2 text-zinc-400">
+          <button class="text-[#f47521] border-b-2 border-[#f47521] pb-2">Episode</button>
+          <button class="hover:text-white transition pb-2">Musik Unggulan</button>
+          <button class="hover:text-white transition pb-2">Lainnya Seperti Ini</button>
+        </div>
+      </div>
+
+      <div class="w-full max-w-[1400px] mx-auto px-4 sm:px-6 lg:px-12 pt-4 space-y-4">
+        <div class="flex items-center justify-between border-b border-zinc-800/80 pb-2.5">
+          <div class="flex items-center gap-1.5 text-xs sm:text-sm font-bold text-white cursor-pointer hover:text-[#f47521] transition">
+            <i data-lucide="chevron-down" class="w-4 h-4 text-[#f47521]"></i>
+            <span id="season-label">Season 1</span>
+          </div>
+          <div class="flex items-center gap-3 text-xs font-bold text-zinc-400">
+            <button onclick="downloadAllEpisodesCurrentAnime()" class="flex items-center gap-1 text-zinc-300 hover:text-[#f47521] transition uppercase tracking-wider bg-zinc-900 px-3 py-1 rounded-full border border-zinc-800">
+              <i data-lucide="download" class="w-3.5 h-3.5 text-[#f47521]"></i> Unduh Semua
+            </button>
+          </div>
+        </div>
+
+        <div id="web-episodes-grid" class="space-y-3"></div>
+      </div>
+
+    </div>
+
+    <div id="player-screen" class="fixed inset-0 z-40 bg-black hidden flex-col overflow-y-auto no-scrollbar">
+      
+      <div id="video-wrapper-container" class="w-full max-w-6xl mx-auto bg-black flex items-center justify-center p-0 md:py-2 md:px-3">
+        <div class="w-full aspect-video max-h-[78vh] rounded-none md:rounded-xl overflow-hidden bg-black shadow-2xl relative flex items-center justify-center border-y md:border border-zinc-900">
+          <video id="native-video-player" class="w-full h-full video-fit-contain bg-black transition-all duration-300" controls playsinline preload="metadata">
+            Browser tidak mendukung pemutar video ini.
+          </video>
+          <iframe id="dropbox-preview-fallback" title="Dropbox Video Player" allow="autoplay; fullscreen; picture-in-picture" allowfullscreen></iframe>
+        </div>
+      </div>
+
+      <div class="w-full max-w-4xl mx-auto px-4 sm:px-6 py-5 space-y-4 pb-28">
+        
+        <div class="space-y-1">
+          <p id="player-anime-parent" class="text-xs font-bold text-[#f47521] uppercase tracking-wider">
+            AniDrive Anime
+          </p>
+          <h2 id="player-title" class="text-lg sm:text-2xl font-black text-white leading-snug">
+            Memuat Judul Episode...
+          </h2>
+          <div class="flex items-center gap-2 text-[11px] sm:text-xs text-zinc-400 pt-0.5">
+            <span class="bg-zinc-800 text-zinc-300 text-[10px] font-bold px-2 py-0.5 rounded border border-zinc-700">16+</span>
+            <span>•</span>
+            <span>Sulih Suara English | Takarir</span>
+          </div>
+        </div>
+
+        <div class="flex items-center justify-between py-2.5 border-y border-blue-950/40 text-white">
+          <div class="flex items-center gap-6">
+            <button class="flex items-center gap-1.5 text-xs font-bold hover:text-[#f47521] transition active:scale-95">
+              <i data-lucide="thumbs-up" class="w-4 h-4"></i>
+              <span>22,9RB</span>
+            </button>
+            <button class="flex items-center gap-1.5 text-xs font-bold hover:text-red-400 transition active:scale-95">
+              <i data-lucide="thumbs-down" class="w-4 h-4"></i>
+              <span>423</span>
+            </button>
+          </div>
+          <div class="flex items-center gap-3">
+            <button onclick="downloadCurrentPlayingVideo()" class="hover:text-[#f47521] transition p-1.5 rounded-lg bg-blue-950/30 border border-blue-900/40" title="Unduh Video">
+              <i data-lucide="download" class="w-4 h-4"></i>
+            </button>
+            <button class="hover:text-[#f47521] transition p-1.5 rounded-lg bg-blue-950/30 border border-blue-900/40">
+              <i data-lucide="more-vertical" class="w-4 h-4"></i>
+            </button>
+          </div>
+        </div>
+
+        <div class="space-y-1 text-xs text-zinc-300 leading-relaxed">
+          <p id="player-episode-desc" class="line-clamp-3">
+            Tonton episode anime berkualitas tinggi dari koleksi Dropbox AniDrive.
+          </p>
+          <button onclick="togglePlayerDesc()" id="btn-player-desc" class="text-[#f47521] text-xs font-bold hover:underline pt-0.5 inline-block">
+            Baca Lainnya
+          </button>
+        </div>
+
+        <div class="pt-2 space-y-3">
+          <h3 class="text-sm font-bold text-white tracking-wide">Episode Berikutnya</h3>
+          <div id="next-episode-card" class="flex items-center justify-between p-3 rounded-2xl bg-blue-950/30 border border-blue-900/40 cursor-pointer hover:border-[#f47521]/60 transition shadow-lg backdrop-blur-md">
+            <div class="flex items-center gap-3 min-w-0 pr-2">
+              <div class="relative w-28 sm:w-40 aspect-video rounded-xl overflow-hidden bg-black flex-shrink-0 border border-blue-900/40">
+                <video id="next-ep-video6" class="w-full h-full object-cover" muted playsinline preload="none" aria-label="Thumbnail episode menit 6"></video>
+                <div class="absolute inset-0 flex items-center justify-center">
+                  <div class="w-7 h-7 rounded-full bg-black/60 flex items-center justify-center shadow">
+                    <i data-lucide="play" class="w-3 h-3 sm:w-3.5 sm:h-3.5 fill-current text-white translate-x-0.5"></i>
+                  </div>
+                </div>
+                <span class="absolute bottom-1 right-1 bg-black/85 text-[9px] font-bold px-1.5 py-0.5 rounded text-zinc-200">24m</span>
+              </div>
+              <div class="min-w-0 space-y-0.5">
+                <h4 id="next-ep-title" class="text-xs sm:text-sm font-bold text-white truncate">Episode Berikutnya</h4>
+                <p class="text-[10px] text-blue-200/70">Putar episode berikutnya</p>
+              </div>
+            </div>
+            <button onclick="event.stopPropagation(); downloadNextEpisode()" class="p-2 bg-black/40 hover:bg-black/80 text-zinc-300 hover:text-white rounded-xl border border-blue-900/40 flex-shrink-0 transition">
+              <i data-lucide="download" class="w-3.5 h-3.5 text-[#f47521]"></i>
+            </button>
+          </div>
+
+          <div class="text-center pt-2">
+            <button onclick="closePlayer()" class="text-[#f47521] text-xs font-bold hover:underline inline-flex items-center gap-1">
+              <span>Semua Episode</span> <i data-lucide="chevron-right" class="w-3.5 h-3.5"></i>
+            </button>
+          </div>
+        </div>
+
+      </div>
+
+    </div>
+
+  </div>
+
+  <script>
+    // Must be declared before ANY startup/cache/render code uses it.
+    const CATALOG_PLACEHOLDER = 'data:image/svg+xml;charset=UTF-8,%3Csvg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 600 900%22%3E%3Crect width=%22600%22 height=%22900%22 fill=%22%23111b2d%22/%3E%3Ccircle cx=%22300%22 cy=%22320%22 r=%22130%22 fill=%22%23f47521%22/%3E%3Ctext x=%2250%25%22 y=%2248%25%22 fill=%22%23ffffff%22 font-size=%2264%22 font-family=%22Arial%22 font-weight=%22700%22 text-anchor=%22middle%22%3EAniDrive%3C/text%3E%3Ctext x=%2250%25%22 y=%2256%25%22 fill=%22%2394a3b8%22 font-size=%2228%22 font-family=%22Arial%22 text-anchor=%22middle%22%3EPoster%3C/text%3E%3C/svg%3E';
+    // Global placeholder MUST be initialized before any startup callback can run.
+    // This avoids the temporal-dead-zone error that stopped Dropbox catalog loading.
+
+    // ==========================================
+    // SISTEM LOGIN TERPROTEKSI (SESI 7 HARI)
+    // ==========================================
+    // Login aplikasi dinonaktifkan.
+    function grantAccess() {
+      const login = document.getElementById('login-screen');
+      const app = document.getElementById('app-main-wrapper');
+      if (login) login.remove();
+      if (app) app.classList.remove('hidden');
+      if (typeof loadInitialCache === "function") loadInitialCache();
+      if (typeof initDropboxSync === "function" && !window.__aniDriveSyncStarted) {
+        window.__aniDriveSyncStarted = true;
+        initDropboxSync();
+      }
+    }
+
+    // ==========================================
+    // DROPBOX AUTO-REFRESH TOKEN PERMANEN
+    // ==========================================
+    const DROPBOX_CLIENT_ID = "02w6iz7fhz2olrr";
+
+    function escapeHtml(value) {
+      return String(value ?? "")
+        .replace(/&/g, "&amp;")
+        .replace(/</g, "&lt;")
+        .replace(/>/g, "&gt;")
+        .replace(/"/g, "&quot;")
+        .replace(/'/g, "&#039;");
+    }
+
+    const DROPBOX_TOKEN_KEY = "anidrive_dropbox_access_token_v10";
+    const DROPBOX_REFRESH_TOKEN_KEY = "anidrive_dropbox_refresh_token_v10";
+    const DROPBOX_EXPIRES_AT_KEY = "anidrive_dropbox_expires_at_v10";
+    const DROPBOX_VERIFIER_KEY = "anidrive_dropbox_pkce_verifier_v10";
+    const DROPBOX_STATE_KEY = "anidrive_dropbox_pkce_state_v10";
+
+    function base64Url(bytes) {
+      let s = "";
+      bytes.forEach(b => s += String.fromCharCode(b));
+      return btoa(s).replace(/\+/g, "-").replace(/\//g, "_").replace(/=+$/g, "");
+    }
+
+    function randomString(length = 64) {
+      const bytes = new Uint8Array(length);
+      crypto.getRandomValues(bytes);
+      return base64Url(bytes).slice(0, length);
+    }
+
+    async function sha256Base64Url(value) {
+      const data = new TextEncoder().encode(value);
+      const digest = await crypto.subtle.digest("SHA-256", data);
+      return base64Url(new Uint8Array(digest));
+    }
+
+    function getStoredDropboxToken() {
+      return localStorage.getItem(DROPBOX_TOKEN_KEY) || "";
+    }
+
+    function showDropboxAuthRequired(message = "Hubungkan Dropbox untuk memuat katalog.") {
+      const statusMsg = document.getElementById("status-msg");
+      if (!statusMsg) return;
+
+      statusMsg.innerHTML = `
+        <div class="max-w-xl mx-auto text-center">
+          <div class="font-bold text-orange-400 mb-2">Dropbox belum terhubung</div>
+          <div class="text-sm text-zinc-300 mb-4">${escapeHtml(message)}</div>
+          <button id="dropbox-connect-btn"
+            class="px-5 py-3 rounded-xl bg-orange-500 text-white font-bold">
+            HUBUNGKAN DROPBOX
+          </button>
+          <div id="dropbox-code-area" class="hidden mt-5 text-left">
+            <div class="text-xs text-zinc-400 mb-2">
+              Setelah menyetujui akses di Dropbox, Dropbox akan menampilkan
+              authorization code. Tempelkan code tersebut di bawah.
+            </div>
+            <input id="dropbox-auth-code"
+              class="w-full rounded-lg bg-zinc-900 border border-zinc-700 px-3 py-3 text-white"
+              placeholder="Masukkan authorization code">
+            <button id="dropbox-submit-code"
+              class="mt-3 w-full px-4 py-3 rounded-xl bg-orange-500 text-white font-bold">
+              VERIFIKASI KODE
+            </button>
+          </div>
+        </div>
+      `;
+
+      document.getElementById("dropbox-connect-btn")?.addEventListener("click", startDropboxPKCE);
+      document.getElementById("dropbox-submit-code")?.addEventListener("click", finishDropboxPKCE);
+    }
+
+    async function startDropboxPKCE() {
+      if (!window.crypto?.subtle) {
+        showDropboxAuthRequired("Browser ini tidak mendukung Web Crypto yang dibutuhkan OAuth PKCE.");
+        return;
+      }
+
+      const verifier = randomString(64);
+      const state = randomString(32);
+      const challenge = await sha256Base64Url(verifier);
+
+      sessionStorage.setItem(DROPBOX_VERIFIER_KEY, verifier);
+      sessionStorage.setItem(DROPBOX_STATE_KEY, state);
+
+      const authUrl = new URL("https://www.dropbox.com/oauth2/authorize");
+      authUrl.searchParams.set("client_id", DROPBOX_CLIENT_ID);
+      authUrl.searchParams.set("response_type", "code");
+      authUrl.searchParams.set("code_challenge", challenge);
+      authUrl.searchParams.set("code_challenge_method", "S256");
+      authUrl.searchParams.set("token_access_type", "offline");
+      authUrl.searchParams.set("state", state);
+      // Request the scopes required by the catalog scanner and video player.
+      authUrl.searchParams.set("scope", "files.metadata.read files.content.read sharing.read");
+
+      // Dropbox allows omitting redirect_uri in PKCE; in that case it displays
+      // the authorization code for the user to enter back into the app.
+      window.open(authUrl.toString(), "_blank");
+      document.getElementById("dropbox-code-area")?.classList.remove("hidden");
+    }
+
+    async function finishDropboxPKCE() {
+      const code = document.getElementById("dropbox-auth-code")?.value.trim();
+      const verifier = sessionStorage.getItem(DROPBOX_VERIFIER_KEY);
+      const expectedState = sessionStorage.getItem(DROPBOX_STATE_KEY);
+
+      if (!code || !verifier) {
+        showDropboxAuthRequired("Mulai proses Hubungkan Dropbox terlebih dahulu.");
+        return;
+      }
+
+      // If the user pasted a full callback URL, extract code/state automatically.
+      let authorizationCode = code;
+      try {
+        const u = new URL(code);
+        authorizationCode = u.searchParams.get("code") || code;
+        const returnedState = u.searchParams.get("state");
+        if (returnedState && returnedState !== expectedState) {
+          throw new Error("State OAuth tidak cocok.");
+        }
+      } catch (e) {
+        if (e.message === "State OAuth tidak cocok.") throw e;
+      }
+
+      const body = new URLSearchParams({
+        code: authorizationCode,
+        grant_type: "authorization_code",
+        code_verifier: verifier,
+        client_id: DROPBOX_CLIENT_ID
+      });
+
+      const res = await fetch("https://api.dropboxapi.com/oauth2/token", {
+        method: "POST",
+        headers: {"Content-Type": "application/x-www-form-urlencoded"},
+        body
+      });
+
+      const raw = await res.text();
+      let data = {};
+      try { data = JSON.parse(raw); } catch (_) {}
+
+      if (!res.ok || !data.access_token) {
+        throw new Error(
+          `Dropbox OAuth PKCE gagal (${res.status}): ` +
+          (data.error_description || data.error_summary || raw)
+        );
+      }
+
+      localStorage.setItem(DROPBOX_TOKEN_KEY, data.access_token);
+      if (data.refresh_token) {
+        localStorage.setItem(DROPBOX_REFRESH_TOKEN_KEY, data.refresh_token);
+      }
+      if (data.expires_in) {
+        localStorage.setItem(DROPBOX_EXPIRES_AT_KEY, String(Date.now() + Number(data.expires_in) * 1000));
+      }
+      sessionStorage.removeItem(DROPBOX_VERIFIER_KEY);
+      sessionStorage.removeItem(DROPBOX_STATE_KEY);
+
+      const statusMsg = document.getElementById("status-msg");
+      if (statusMsg) statusMsg.innerHTML = `<div class="text-green-400 font-bold">Dropbox berhasil terhubung. Memuat katalog...</div>`;
+
+      // OAuth selesai: jalankan sinkronisasi katalog walaupun startup sebelumnya
+      // sudah pernah dipanggil saat token belum tersedia.
+      window.__aniDriveSyncStarted = false;
+      if (typeof initDropboxSync === "function") {
+        window.__aniDriveSyncStarted = true;
+        await initDropboxSync();
+      }
+    }
+
+    let dropboxRefreshInFlight = null;
+
+    async function refreshDropboxAccessToken() {
+      const refreshToken = localStorage.getItem(DROPBOX_REFRESH_TOKEN_KEY) || "";
+      if (!refreshToken) return "";
+      if (dropboxRefreshInFlight) return dropboxRefreshInFlight;
+
+      dropboxRefreshInFlight = (async () => {
+        try {
+          const body = new URLSearchParams({
+            grant_type: "refresh_token",
+            refresh_token: refreshToken,
+            client_id: DROPBOX_CLIENT_ID
+          });
+          const res = await fetch("https://api.dropboxapi.com/oauth2/token", {
+            method: "POST",
+            headers: {"Content-Type": "application/x-www-form-urlencoded"},
+            body
+          });
+          const raw = await res.text();
+          let data = {};
+          try { data = JSON.parse(raw); } catch (_) {}
+          if (!res.ok || !data.access_token) {
+            throw new Error(
+              `Refresh Dropbox gagal (${res.status}): ` +
+              (data.error_description || data.error_summary || raw)
+            );
+          }
+          localStorage.setItem(DROPBOX_TOKEN_KEY, data.access_token);
+          if (data.expires_in) {
+            localStorage.setItem(DROPBOX_EXPIRES_AT_KEY, String(Date.now() + Number(data.expires_in) * 1000));
+          }
+          return data.access_token;
+        } catch (err) {
+          console.warn("Dropbox auto-refresh gagal:", err);
+          return "";
+        } finally {
+          dropboxRefreshInFlight = null;
+        }
+      })();
+
+      return dropboxRefreshInFlight;
+    }
+
+    async function getDropboxAccessToken() {
+      const token = getStoredDropboxToken();
+      const expiresAt = Number(localStorage.getItem(DROPBOX_EXPIRES_AT_KEY) || 0);
+      const refreshToken = localStorage.getItem(DROPBOX_REFRESH_TOKEN_KEY) || "";
+
+      // Refresh 2 menit sebelum access token habis agar scan/stream tetap aman.
+      if (refreshToken && expiresAt && Date.now() >= expiresAt - 120000) {
+        const refreshed = await refreshDropboxAccessToken();
+        if (refreshed) return refreshed;
+      }
+
+      if (token) return token;
+
+      if (refreshToken) {
+        const refreshed = await refreshDropboxAccessToken();
+        if (refreshed) return refreshed;
+      }
+
+      showDropboxAuthRequired();
+      throw new Error("Dropbox belum terhubung atau sesi Dropbox sudah tidak valid.");
+    }
+
+    // Link Folder Utama (AniDrive) & Folder Logo
+    const DROPBOX_SHARED_LINK = "https://www.dropbox.com/scl/fo/auckqx7vn1f1cw8czunx9/ADZa1UUXNvcNRQ6lV_4Yxgg?rlkey=g78v55lmto5d02d5sh2f81ljs&st=5rk9yte6&dl=0";
+    // Shared-link paths returned by Dropbox are relative to the AniDrive shared
+    // folder. Use the real account path for authenticated temporary links so the
+    // browser receives a normal Dropbox content URL with HTTP Range support.
+    const DROPBOX_ANIDRIVE_ROOT = "/SWORD HUNTER/AniDrive/ANIKKU";
+    const DROPBOX_LOGO_LINK = "https://www.dropbox.com/scl/fo/pjjfg31z2hcatwb96pr21/AK83yzbHXPSB_4GTRnlnIkQ?rlkey=f8wrkw8b8g5diu5zd2odg16nh&st=8cieq2qh&dl=0";
+    
+    const API_KEY = "AIzaSyBtic-wBgfEdL7MYOlzV0AslACNSgg1z-Q";
+    const AI_BACKEND_URL = "https://table-treat-pending-mechanics.trycloudflare.com"; 
+
+    const MAIN_CATEGORIES = ['ANIME', 'MOVIE', 'HENTAI', 'SEX'];
+    let categoriesData = { 'ANIME': [], 'MOVIE': [], 'HENTAI': [], 'SEX': [] };
+    
+    let categoryBanners = { 'ANIME': [], 'MOVIE': [], 'HENTAI': [], 'SEX': [] };
+
+    let activeCategory = "ANIME";
+    let currentSortedList = [];
+    let jassubInstance = null;
+    let jassubLoadPromise = null;
+
+    async function ensureJassubLoaded() {
+      if (window.JASSUB) return window.JASSUB;
+      if (jassubLoadPromise) return jassubLoadPromise;
+      jassubLoadPromise = new Promise((resolve, reject) => {
+        const script = document.createElement('script');
+        script.src = 'https://cdn.jsdelivr.net/npm/jassub/dist/jassub.umd.js';
+        script.onload = () => window.JASSUB ? resolve(window.JASSUB) : reject(new Error('JASSUB tidak tersedia'));
+        script.onerror = () => reject(new Error('Gagal memuat modul subtitle'));
+        document.head.appendChild(script);
+      });
+      return jassubLoadPromise;
+    }
+    let currentPlayingFileId = "";
+    let currentPlayingInfo = null;
+    let currentActiveDetailItem = null;
+
+    let currentBannerIdx = 0;
+    let bannerInterval = null;
+    let cloudDatabase = { view_counts: {}, continue_watching: [], watchlist: [] };
+
+    // =====================================================================
+    // CLOUD STATE SYNC — data aplikasi disimpan ke Dropbox agar lintas-device
+    // (riwayat, posisi video, bookmark/favorit). Thumbnail/video tetap cache/stream.
+    // =====================================================================
+    const DROPBOX_APP_STATE_PATH = "/AniDrive Sync/anidrive_state.json";
+    const DROPBOX_APP_STATE_LOCAL_KEY = "anidrive_dropbox_state_v1";
+    const DROPBOX_APP_STATE_UPDATED_KEY = "anidrive_dropbox_state_updated_v1";
+    let cloudStateUploadTimer = null;
+    let cloudStateUploadInFlight = false;
+    let cloudStateUploadQueued = false;
+
+    // ==========================================
+    // MODE VIDEO 21:9 + PINCH ZOOM
+    // ==========================================
+    let is21to9Mode = false;
+    let pinchStartDistance = 0;
+    let pinchTriggered = false;
+
+    function set21to9Mode(enabled, showToast = true) {
+      const wrapper = document.getElementById('video-wrapper-container');
+      const vid = document.getElementById('native-video-player');
+      const label = document.getElementById('aspect-mode-label');
+      if (!wrapper || !vid) return;
+
+      is21to9Mode = !!enabled;
+      wrapper.classList.toggle('video-aspect-21-9', is21to9Mode);
+      vid.classList.remove('video-fit-contain', 'video-fit-cover', 'video-fit-fill');
+      vid.classList.add(is21to9Mode ? 'video-fit-cover' : 'video-fit-contain');
+      if (label) label.innerText = is21to9Mode ? '21:9' : 'Normal';
+
+      if (showToast) {
+        showSyncToast('Mode Layar Video', is21to9Mode ? '21:9 (Zoom)' : 'Normal');
+      }
+    }
+
+    function toggle21to9Mode() {
+      set21to9Mode(!is21to9Mode);
+    }
+
+    // Tetap sediakan fungsi lama agar pemanggilan dari versi kode lain tidak rusak.
+    function cycleVideoAspectRatio() {
+      toggle21to9Mode();
+    }
+
+    function getTouchDistance(t1, t2) {
+      const dx = t1.clientX - t2.clientX;
+      const dy = t1.clientY - t2.clientY;
+      return Math.hypot(dx, dy);
+    }
+
+    function initVideoPinchZoom() {
+      const area = document.getElementById('video-wrapper-container');
+      if (!area || area.dataset.pinchReady === '1') return;
+      area.dataset.pinchReady = '1';
+
+      area.addEventListener('touchstart', (e) => {
+        if (e.touches.length === 2) {
+          pinchStartDistance = getTouchDistance(e.touches[0], e.touches[1]);
+          pinchTriggered = false;
+        }
+      }, { passive: true });
+
+      area.addEventListener('touchmove', (e) => {
+        if (e.touches.length !== 2 || !pinchStartDistance || pinchTriggered) return;
+        const distance = getTouchDistance(e.touches[0], e.touches[1]);
+        const delta = distance - pinchStartDistance;
+
+        // Pinch-out = 21:9, pinch-in = normal.
+        if (Math.abs(delta) >= 45) {
+          pinchTriggered = true;
+          set21to9Mode(delta > 0);
+        }
+      }, { passive: true });
+
+      area.addEventListener('touchend', (e) => {
+        if (e.touches.length < 2) {
+          pinchStartDistance = 0;
+          pinchTriggered = false;
+        }
+      }, { passive: true });
+    }
+
+    function toggleVideoFullscreen() {
+      const vid = document.getElementById('native-video-player');
+      if (!vid) return;
+
+      if (!document.fullscreenElement) {
+        if (vid.requestFullscreen) {
+          vid.requestFullscreen();
+        } else if (vid.webkitRequestFullscreen) {
+          vid.webkitRequestFullscreen();
+        } else if (vid.msRequestFullscreen) {
+          vid.msRequestFullscreen();
+        }
+      } else {
+        if (document.exitFullscreen) {
+          document.exitFullscreen();
+        }
+      }
+    }
+
+    if (document.readyState === 'loading') {
+      document.addEventListener('DOMContentLoaded', initVideoPinchZoom, { once: true });
+    } else {
+      initVideoPinchZoom();
+    }
+
+    function goBackToHome() {
+      closeCrunchyrollWebDetail();
+      closeWatchlistModal();
+      closePlayer();
+      window.scrollTo({ top: 0, behavior: 'smooth' });
+    }
+
+    function switchCategoryFromNav(catName) {
+      closeCrunchyrollWebDetail();
+      closeWatchlistModal();
+      closePlayer();
+      switchCategory(catName, { pushHistory: true });
+      window.scrollTo({ top: 0, behavior: 'smooth' });
+    }
+
+    // Android/Chrome Back: gunakan history internal AniDrive.
+    // Urutan: Player -> Detail -> Kanal sebelumnya -> keluar dari dokumen.
+    function aniDriveStateFromLocation() {
+      const hash = String(location.hash || "");
+      const catMatch = hash.match(/^#anidrive-category=([^&]+)/);
+      const cat = catMatch ? decodeURIComponent(catMatch[1]) : activeCategory;
+      return {
+        anidrive: true,
+        view: "home",
+        category: MAIN_CATEGORIES.includes(cat) ? cat : "ANIME"
+      };
+    }
+
+    function pushAniDriveHistory(view, category, extra = {}) {
+      try {
+        history.pushState({
+          anidrive: true,
+          view,
+          category: MAIN_CATEGORIES.includes(category) ? category : activeCategory,
+          ...extra
+        }, "", location.pathname + "#anidrive-" + view + "=" + encodeURIComponent(category || activeCategory));
+      } catch (_) {}
+    }
+
+    window.addEventListener("popstate", (event) => {
+      let state = event.state;
+      if (!state || state.anidrive !== true) {
+        state = aniDriveStateFromLocation();
+      }
+
+      // Tutup semua overlay/view dulu.
+      closePlayer();
+      closeWatchlistModal();
+      closeCrunchyrollWebDetail();
+
+      const cat = MAIN_CATEGORIES.includes(state.category) ? state.category : activeCategory;
+
+      if (state.view === "detail" && state.title) {
+        const list = categoriesData[cat] || [];
+        const idx = list.findIndex(item => item.title === state.title);
+        if (idx !== -1) {
+          activeCategory = cat;
+          applySorting();
+          const sortedIdx = currentSortedList.findIndex(item => item.title === state.title);
+          if (sortedIdx !== -1) openCrunchyrollWebDetail(sortedIdx, { pushHistory: false });
+        }
+      } else {
+        switchCategory(cat, { pushHistory: false });
+      }
+
+      window.scrollTo({ top: 0, behavior: "smooth" });
+    });
+
+    function initTheme() {
+      const savedTheme = localStorage.getItem('anidrive_theme') || 'dark';
+      const themeIcon = document.getElementById('theme-icon');
+      if (savedTheme === 'light') {
+        document.body.classList.add('light-mode');
+        if (themeIcon) themeIcon.setAttribute('data-lucide', 'moon');
+      } else {
+        document.body.classList.remove('light-mode');
+        if (themeIcon) themeIcon.setAttribute('data-lucide', 'sun');
+      }
+      lucide.createIcons();
+    }
+
+    function toggleTheme() {
+      const isLight = document.body.classList.toggle('light-mode');
+      localStorage.setItem('anidrive_theme', isLight ? 'light' : 'dark');
+      const themeIcon = document.getElementById('theme-icon');
+      if (themeIcon) {
+        themeIcon.setAttribute('data-lucide', isLight ? 'moon' : 'sun');
+        lucide.createIcons();
+      }
+    }
+
+    initTheme();
+
+    function showSyncToast(title, desc, isError = false) {
+      const toast = document.getElementById('sync-toast');
+      const toastTitle = document.getElementById('sync-toast-title');
+      const toastDesc = document.getElementById('sync-toast-desc');
+      const toastIcon = document.getElementById('sync-toast-icon');
+
+      toastTitle.innerText = title;
+      toastDesc.innerText = desc;
+
+      if (isError) {
+        toastIcon.className = "w-7 h-7 rounded-full bg-red-500/20 text-red-400 flex items-center justify-center";
+        toastIcon.innerHTML = `<i data-lucide="alert-circle" class="w-4 h-4"></i>`;
+      } else {
+        toastIcon.className = "w-7 h-7 rounded-full bg-emerald-500/20 text-emerald-400 flex items-center justify-center";
+        toastIcon.innerHTML = `<i data-lucide="check" class="w-4 h-4"></i>`;
+      }
+
+      lucide.createIcons();
+      toast.classList.remove('translate-y-24', 'opacity-0');
+
+      setTimeout(() => {
+        toast.classList.add('translate-y-24', 'opacity-0');
+      }, 3500);
+    }
+
+    function normalizeSharedLinkPath(relativePath) {
+      const p = String(relativePath || "").trim();
+      if (!p) return null;
+      return "/" + p.replace(/^\/+/, "");
+    }
+
+    async function getSharedLinkFileBlob(sharedUrl, relativePath) {
+      const token = await getDropboxAccessToken();
+      const apiPath = normalizeSharedLinkPath(relativePath);
+
+      const res = await fetch("https://content.dropboxapi.com/2/sharing/get_shared_link_file", {
+        method: "POST",
+        headers: {
+          "Authorization": `Bearer ${token}`,
+          "Dropbox-API-Arg": JSON.stringify({
+            url: sharedUrl,
+            path: apiPath
+          })
+        }
+      });
+
+      if (!res.ok) {
+        const raw = await res.text().catch(() => "");
+        throw new Error(`Gagal mengambil file shared link (${res.status}): ${raw}`);
+      }
+
+      return await res.blob();
+    }
+
+    async function getSharedLinkObjectUrl(sharedUrl, relativePath) {
+      const blob = await getSharedLinkFileBlob(sharedUrl, relativePath);
+      if (!blob || !blob.size) throw new Error("Dropbox mengembalikan file kosong.");
+      return URL.createObjectURL(blob);
+    }
+
+    // URL langsung untuk file gambar di shared folder Dropbox.
+    // Format /scl/fo/.../relative-path?raw=1 menghindari request thumbnail API.
+    function getSharedFolderDirectImageUrl(sharedUrl, relativePath) {
+      if (!sharedUrl || !relativePath) return "";
+      try {
+        const u = new URL(sharedUrl);
+        const cleanPath = String(relativePath).split("/").filter(Boolean)
+          .map(part => encodeURIComponent(part)).join("/");
+        u.pathname = u.pathname.replace(/\/$/, "") + "/" + cleanPath;
+        u.searchParams.delete("dl");
+        u.searchParams.set("raw", "1");
+        return u.toString();
+      } catch (_) { return ""; }
+    }
+
+    function getAniDriveAbsolutePath(relativePath) {
+      if (!relativePath) return "";
+      const raw = String(relativePath).replace(/\\/g, "/").replace(/^\/+/, "");
+      const root = DROPBOX_ANIDRIVE_ROOT.replace(/\/+$/, "");
+      const rootLower = root.toLowerCase();
+      const rawLower = ("/" + raw).toLowerCase();
+      if (rawLower === rootLower || rawLower.startsWith(rootLower + "/")) {
+        return "/" + raw;
+      }
+      return root + "/" + raw;
+    }
+
+    async function getAniDrivePlayableUrl(epOrPath) {
+      const sharedPath = typeof epOrPath === "object"
+        ? (epOrPath?.sharedLinkPath || "")
+        : String(epOrPath || "");
+      if (!sharedPath) return "";
+
+      // Primary route: authenticated Dropbox temporary link. This is the closest
+      // equivalent to Dropbox's own web player and supports browser seeking.
+      const absolutePath = getAniDriveAbsolutePath(sharedPath);
+      if (absolutePath) {
+        const temp = await getDropboxTemporaryLink(absolutePath);
+        if (temp) return temp;
+      }
+
+      // Fallback: public shared-folder raw URL.
+      return getSharedVideoDirectUrl(sharedPath);
+    }
+
+    function getSharedVideoDirectUrl(relativePath, sharedUrl = DROPBOX_SHARED_LINK) {
+      if (!relativePath) return "";
+      try {
+        const u = new URL(sharedUrl || DROPBOX_SHARED_LINK);
+        const cleanPath = String(relativePath).split("/").filter(Boolean)
+          .map(part => encodeURIComponent(part)).join("/");
+        u.pathname = u.pathname.replace(/\/$/, "") + "/" + cleanPath;
+        u.searchParams.delete("dl");
+        u.searchParams.delete("path");
+        u.searchParams.set("raw", "1");
+        return u.toString();
+      } catch (_) { return ""; }
+    }
+
+    function getSharedLinkDirectUrl(relativePath, rawName = "", sharedUrl = DROPBOX_SHARED_LINK) {
+      if (!relativePath) return "";
+      // Catalog media uses DROPBOX_SHARED_LINK; branding assets use DROPBOX_LOGO_LINK.
+      const url = new URL(sharedUrl || DROPBOX_SHARED_LINK);
+      url.searchParams.set("dl", "1");
+      url.searchParams.set("path", relativePath);
+      return url.toString();
+    }
+
+    // Global placeholder must be initialized before any startup routine can run.
+    // The previous V21 declared this later, while an early startup call could
+    // invoke restoreFastCatalogCache() first, causing a TDZ ReferenceError.
+
+    // =====================================================================
+    // IMAGE OPTIMIZER — Dropbox membuat thumbnail WebP kecil dari server.
+    // Poster/card tidak lagi mengunduh file gambar asli yang besar.
+    // Thumbnail disimpan di Cache Storage agar kunjungan berikutnya jauh
+    // lebih cepat. Fallback otomatis ke gambar asli jika thumbnail gagal.
+    // =====================================================================
+    let optimizedImageToken = null;
+    const IMAGE_CACHE_NAME = "anidrive-image-cache-v2";
+    const IMAGE_PLACEHOLDER = CATALOG_PLACEHOLDER || "data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///ywAAAAAAQABAAACAUwAOw==";
+
+    async function getOptimizedDropboxImageUrl(relativePath, sharedUrl = DROPBOX_SHARED_LINK, kind = "poster", fileId = null) {
+      if (!relativePath && !fileId) return "";
+      const token = optimizedImageToken || await getDropboxAccessToken();
+      if (!token) return "";
+
+      const size = kind === "banner" ? "w1024h768" : (kind === "logo" ? "w256h256" : "w480h320");
+      const mode = "bestfit";
+      const resourceKey = fileId ? `file:${fileId}` : `link:${sharedUrl}:${relativePath}`;
+      const baseKey = `https://anidrive.local/thumb/${encodeURIComponent(resourceKey)}?size=${size}`;
+
+      // Try the compressed WebP response first, then JPEG for older Dropbox
+      // thumbnail backends. Both are server-generated thumbnails, so the full
+      // poster is never downloaded on the normal path.
+      for (const format of ["webp", "jpeg"]) {
+        const cacheKey = `${baseKey}&format=${format}`;
+        try {
+          if (window.caches) {
+            const cache = await caches.open(IMAGE_CACHE_NAME);
+            const cached = await cache.match(cacheKey);
+            if (cached) return URL.createObjectURL(await cached.blob());
+          }
+
+          const apiArg = {
+            resource: fileId
+              ? { ".tag": "file", id: fileId }
+              : { ".tag": "link", url: sharedUrl, path: String(relativePath).replace(/^\/+/, "") },
+            format,
+            size,
+            mode
+          };
+
+          const res = await fetch("https://content.dropboxapi.com/2/files/get_thumbnail_v2", {
+            method: "POST",
+            headers: {
+              "Authorization": `Bearer ${token}`,
+              "Dropbox-API-Arg": JSON.stringify(apiArg)
+            }
+          });
+          if (!res.ok) continue;
+
+          const blob = await res.blob();
+          if (!blob.size || !String(blob.type || "").startsWith("image/")) continue;
+
+          if (window.caches) {
+            try {
+              const cache = await caches.open(IMAGE_CACHE_NAME);
+              await cache.put(cacheKey, new Response(blob, { headers: { "Content-Type": blob.type || `image/${format}` } }));
+            } catch (_) {}
+          }
+          return URL.createObjectURL(blob);
+        } catch (_) {}
+      }
+
+      // Fallback 1: fetch through Dropbox's authenticated shared-link endpoint.
+      // This guarantees that a valid image can still be displayed if the
+      // thumbnail endpoint is unavailable for this shared-folder layout.
+      if (relativePath) {
+        try {
+          const blob = await getSharedLinkFileBlob(sharedUrl, relativePath);
+          if (blob && blob.size && String(blob.type || "").startsWith("image/")) {
+            return URL.createObjectURL(blob);
+          }
+        } catch (_) {}
+      }
+
+      // Fallback 2: use a short-lived authenticated file URL when a file ID is known.
+      // This is reliable even when the shared-link path is not relative to the
+      // shared-folder root.
+      if (fileId) {
+        try {
+          const temporary = await getDropboxTemporaryLink(fileId);
+          if (temporary) return temporary;
+        } catch (_) {}
+      }
+
+      // Fallback 3: let Dropbox serve the shared-link image directly.
+      // This is slower/larger than the thumbnail, so it is used only when
+      // both optimized routes fail.
+      try {
+        return getSharedLinkDirectUrl(relativePath, "", sharedUrl);
+      } catch (_) {}
+
+      return "";
+    }
+
+    let optimizedImageObserver = null;
+    function setupOptimizedImageObserver() {
+      if (!window.IntersectionObserver) return;
+      if (optimizedImageObserver) optimizedImageObserver.disconnect();
+      optimizedImageObserver = new IntersectionObserver((entries) => {
+        entries.forEach(entry => {
+          if (!entry.isIntersecting) return;
+          const img = entry.target;
+          optimizedImageObserver.unobserve(img);
+          hydrateOptimizedImage(img);
+        });
+      }, { rootMargin: "900px 0px", threshold: 0.01 });
+      document.querySelectorAll("img[data-dropbox-image-path], img[data-dropbox-file-id]").forEach(img => optimizedImageObserver.observe(img));
+    }
+
+    async function hydrateOptimizedImage(img) {
+      if (!img || img.dataset.optimized === "1") return;
+      const path = img.dataset.dropboxImagePath || "";
+      const fileId = img.dataset.dropboxFileId || "";
+      if (!path && !fileId) return;
+      img.dataset.optimized = "1";
+      const shared = img.dataset.dropboxSharedUrl || DROPBOX_SHARED_LINK;
+      const kind = img.dataset.imageKind || "poster";
+      const url = await getOptimizedDropboxImageUrl(path, shared, kind, fileId || null);
+      if (url) {
+        img.src = url;
+        img.removeAttribute("data-dropbox-image-path");
+        img.dataset.imageLoaded = "1";
+      }
+    }
+
+    function hydrateOptimizedImages() {
+      setupOptimizedImageObserver();
+    }
+
+    async function getDropboxTemporaryLink(pathOrFileId) {
+      if (!pathOrFileId) return "";
+      try {
+        const token = await getDropboxAccessToken();
+        const res = await fetch("https://api.dropboxapi.com/2/files/get_temporary_link", {
+          method: "POST",
+          headers: {
+            "Authorization": `Bearer ${token}`,
+            "Content-Type": "application/json"
+          },
+          body: JSON.stringify({ "path": pathOrFileId })
+        });
+        const data = await res.json();
+        return data.link || "";
+      } catch (e) {
+        return "";
+      }
+    }
+
+
+    async function getSharedLinkImageUrl(sharedUrl, relativePath) {
+      if (!sharedUrl || !relativePath) return "";
+      try {
+        const blob = await getSharedLinkFileBlob(sharedUrl, relativePath);
+        if (!blob || !blob.size) return "";
+        return URL.createObjectURL(blob);
+      } catch (e) {
+        console.warn("Gagal memuat gambar shared link:", relativePath, e);
+        return "";
+      }
+    }
+
+    // =========================================================
+    // THUMBNAIL EPISODE DARI FRAME MENIT KE-6
+    // Tidak mengubah URL/id video asli. Jika frame tidak dapat
+    // diambil karena kebijakan CORS Dropbox, cover episode tetap
+    // dipakai sebagai fallback.
+    // =========================================================
+    const episodeFrameCache = new Map();
+    const episodeFramePending = new Map();
+
+    async function getEpisodeThumbnailAt6Minutes(videoFile) {
+      if (!videoFile) return "";
+      if (episodeFrameCache.has(videoFile)) return episodeFrameCache.get(videoFile);
+      if (episodeFramePending.has(videoFile)) return episodeFramePending.get(videoFile);
+
+      const job = (async () => {
+        try {
+          let playableUrl = videoFile;
+
+          // Pertahankan mekanisme V9 untuk file path Dropbox milik akun.
+          if (typeof videoFile === "string" && videoFile.startsWith("/")) {
+            playableUrl = await getDropboxTemporaryLink(videoFile);
+          }
+
+          if (!playableUrl) return "";
+
+          const imageUrl = await new Promise((resolve) => {
+            const video = document.createElement("video");
+            const canvas = document.createElement("canvas");
+            let settled = false;
+
+            const finish = (value = "") => {
+              if (settled) return;
+              settled = true;
+              clearTimeout(timeout);
+              video.pause();
+              video.removeAttribute("src");
+              video.load();
+              resolve(value);
+            };
+
+            const timeout = setTimeout(() => finish(""), 35000);
+
+            video.muted = true;
+            video.playsInline = true;
+            video.preload = "metadata";
+            video.crossOrigin = "anonymous";
+
+            video.onerror = () => finish("");
+
+            video.onloadedmetadata = () => {
+              try {
+                const duration = Number.isFinite(video.duration) ? video.duration : 0;
+                // 360 detik = 06:00. Untuk video < 6 menit, ambil frame terakhir.
+                video.currentTime = duration > 0
+                  ? Math.min(360, Math.max(0, duration - 0.25))
+                  : 360;
+              } catch (e) {
+                finish("");
+              }
+            };
+
+            video.onseeked = () => {
+              try {
+                const sourceW = video.videoWidth || 640;
+                const sourceH = video.videoHeight || 360;
+                const maxW = 640;
+                const scale = Math.min(1, maxW / sourceW);
+
+                canvas.width = Math.max(1, Math.round(sourceW * scale));
+                canvas.height = Math.max(1, Math.round(sourceH * scale));
+
+                const ctx = canvas.getContext("2d", { alpha: false });
+                ctx.drawImage(video, 0, 0, canvas.width, canvas.height);
+
+                finish(canvas.toDataURL("image/jpeg", 0.78));
+              } catch (e) {
+                // CORS/codec: biarkan pemanggil menggunakan cover fallback.
+                finish("");
+              }
+            };
+
+            video.src = playableUrl;
+            video.load();
+          });
+
+          if (imageUrl) episodeFrameCache.set(videoFile, imageUrl);
+          return imageUrl;
+        } catch (e) {
+          return "";
+        } finally {
+          episodeFramePending.delete(videoFile);
+        }
+      })();
+
+      episodeFramePending.set(videoFile, job);
+      return job;
+    }
+
+    // Browser-native thumbnail at exactly 06:00.
+    // We deliberately do NOT use canvas here: Dropbox/CDN CORS can make
+    // canvas snapshots fail even though the video itself plays normally.
+    // Branding image fallback: bila temporary link pertama gagal,
+    // minta link baru dari Dropbox sekali lagi. Tidak menggunakan gambar luar.
+    function installBrandingImageFallback() {
+      document.querySelectorAll("#app-logo").forEach(img => {
+        if (img.dataset.brandingFallbackInstalled) return;
+        img.dataset.brandingFallbackInstalled = "1";
+        img.addEventListener("error", async () => {
+          if (img.dataset.brandingRetry === "1") return;
+          img.dataset.brandingRetry = "1";
+          try {
+            const res = await fetch("https://api.dropboxapi.com/2/files/list_folder", {
+              method: "POST",
+              headers: {
+                "Authorization": `Bearer ${await getDropboxAccessToken()}`,
+                "Content-Type": "application/json"
+              },
+              body: JSON.stringify({
+                path: "",
+                shared_link: { url: DROPBOX_LOGO_LINK },
+                recursive: true,
+                include_deleted: false,
+                include_media_info: false,
+                recursive: false
+              })
+            });
+            if (!res.ok) return;
+            const data = await res.json();
+            const entry = (data.entries || []).find(e =>
+              e[".tag"] === "file" &&
+              isImageFile(e.name || "") &&
+              String(e.path_display || e.path_lower || "").toLowerCase().includes("logo aplikasi")
+            );
+            if (entry) {
+              const fresh = await getDropboxTemporaryLink(entry.path_lower || entry.path_display || entry.id);
+              if (fresh) img.src = fresh;
+            }
+          } catch (_) {}
+        }, { once: true });
+      });
+    }
+
+    // =========================================================
+    // THUMBNAIL EPISODE: FRAME ASLI DARI VIDEO PADA 06:00
+    // =========================================================
+    const episodeVideoThumbUrls = new Map();
+    const episodeVideoThumbJobs = new Map();
+
+    async function resolveEpisodeVideoUrl(ep) {
+      if (!ep) return "";
+      const key = ep.id || ep.sharedLinkPath || "";
+      if (episodeVideoThumbUrls.has(key)) return episodeVideoThumbUrls.get(key);
+
+      let url = "";
+      if (ep.sharedLinkPath) {
+        // Episode di katalog berasal dari shared-link Dropbox.
+        url = getSharedVideoDirectUrl(ep.sharedLinkPath);
+      } else if (typeof ep.id === "string" && ep.id.startsWith("http")) {
+        url = ep.id;
+      } else if (typeof ep.id === "string" && ep.id.startsWith("/")) {
+        url = await getDropboxTemporaryLink(ep.id);
+      }
+
+      if (url) episodeVideoThumbUrls.set(key, url);
+      return url;
+    }
+
+    async function loadEpisodeVideoFrame6(videoEl, ep) {
+      if (!videoEl || !ep) return;
+      const key = ep.id || ep.sharedLinkPath || ep.name || "";
+      if (!key) return;
+      if (episodeVideoThumbJobs.has(key)) {
+        await episodeVideoThumbJobs.get(key);
+        return;
+      }
+
+      const job = (async () => {
+        try {
+          const playableUrl = await resolveEpisodeVideoUrl(ep);
+          if (!playableUrl) {
+            console.warn("Thumbnail menit 6: URL video tidak tersedia", ep.name);
+            return;
+          }
+
+          videoEl.muted = true;
+          videoEl.playsInline = true;
+          videoEl.controls = false;
+          videoEl.preload = "auto";
+          videoEl.setAttribute("aria-label", `Thumbnail ${ep.name} dari menit 6`);
+
+          const seekToSix = () => {
+            try {
+              const duration = Number.isFinite(videoEl.duration) ? videoEl.duration : 0;
+              if (!duration) return;
+              // Tepat 06:00 jika video >= 6 menit.
+              // Jika lebih pendek dari 6 menit, tidak memakai cover:
+              // ambil frame paling akhir dari video tersebut.
+              videoEl.currentTime = duration >= 360 ? 360 : Math.max(0, duration - 0.10);
+            } catch (e) {
+              console.warn("Gagal seek thumbnail:", ep.name, e);
+            }
+          };
+
+          const onSeeked = () => {
+            try { videoEl.pause(); } catch (e) {}
+          };
+
+          videoEl.addEventListener("loadedmetadata", seekToSix, { once: true });
+          videoEl.addEventListener("seeked", onSeeked, { once: true });
+          videoEl.addEventListener("error", () => {
+            console.warn("Video thumbnail tidak dapat didecode:", ep.name, videoEl.error);
+          }, { once: true });
+
+          videoEl.src = playableUrl;
+          videoEl.load();
+        } catch (e) {
+          console.warn("Gagal membuat thumbnail menit 6:", ep.name, e);
+        }
+      })();
+
+      episodeVideoThumbJobs.set(key, job);
+      try { await job; } finally { episodeVideoThumbJobs.delete(key); }
+    }
+
+    function loadEpisodeFrame6(img, videoFile, fallbackUrl = "") {
+      if (!img || !videoFile) return;
+
+      getEpisodeThumbnailAt6Minutes(videoFile).then((frameUrl) => {
+        // Jangan pernah menghapus cover jika frame gagal dibuat.
+        if (frameUrl) {
+          img.src = frameUrl;
+        } else if (fallbackUrl) {
+          img.src = fallbackUrl;
+        }
+      });
+    }
+
+    function triggerDownload(fileUrl, filename) {
+      if (!fileUrl) return;
+      showSyncToast("Memulai Unduhan", `Mengunduh "${filename}"...`);
+      const a = document.createElement('a');
+      a.href = fileUrl;
+      a.target = '_blank';
+      a.download = filename;
+      document.body.appendChild(a);
+      a.click();
+      document.body.removeChild(a);
+    }
+
+    async function downloadCurrentPlayingVideo() {
+      if (!currentPlayingFileId) return;
+      const title = currentPlayingInfo ? `${currentPlayingInfo.animeTitle} - ${currentPlayingInfo.epName}` : "Video";
+      let directUrl = currentPlayingFileId;
+      if (currentPlayingFileId.startsWith("/")) {
+        directUrl = await getDropboxTemporaryLink(currentPlayingFileId);
+      }
+      triggerDownload(directUrl, `${title}.mkv`);
+    }
+
+    function downloadAllEpisodesCurrentAnime() {
+      if (!currentActiveDetailItem || !currentActiveDetailItem.episodes || currentActiveDetailItem.episodes.length === 0) {
+        alert("Tidak ada episode untuk diunduh.");
+        return;
+      }
+
+      showSyncToast("Unduh Semua Dimulai", `Mengunduh ${currentActiveDetailItem.episodes.length} episode...`);
+      currentActiveDetailItem.episodes.forEach(async (ep, i) => {
+        let streamUrl = ep.id;
+        if (ep.sharedLinkPath) {
+          const blob = await getSharedLinkFileBlob(DROPBOX_SHARED_LINK, ep.sharedLinkPath);
+          streamUrl = URL.createObjectURL(blob);
+        } else if (ep.id.startsWith("/")) {
+          streamUrl = await getDropboxTemporaryLink(ep.id);
+        }
+        setTimeout(() => {
+          triggerDownload(streamUrl || ep.id, `${currentActiveDetailItem.title} - ${ep.name}.mkv`);
+        }, i * 1500);
+      });
+    }
+
+    async function manualSyncCloud() {
+      const btn = document.getElementById('btn-sync-cloud');
+      const icon = document.getElementById('sync-icon');
+      const text = document.getElementById('sync-btn-text');
+
+      icon.classList.add('animate-spin');
+      if(text) text.innerText = 'Syncing...';
+      btn.disabled = true;
+
+      try {
+        await initDropboxSync(true);
+        showSyncToast("Sinkronisasi Berhasil", "Data Dropbox telah diperbarui.");
+      } catch (err) {
+        showSyncToast("Sinkronisasi Selesai", "Data diperbarui.", false);
+      } finally {
+        icon.classList.remove('animate-spin');
+        if(text) text.innerText = 'Sync Cloud';
+        btn.disabled = false;
+        lucide.createIcons();
+      }
+    }
+
+    function loadInitialCache() {
+      try {
+        const localDB = localStorage.getItem(DROPBOX_APP_STATE_LOCAL_KEY) || localStorage.getItem('anidrive_dropbox_cache');
+        if (localDB) cloudDatabase = JSON.parse(localDB);
+      } catch (e) {}
+      if (!cloudDatabase || typeof cloudDatabase !== 'object') cloudDatabase = { view_counts: {}, continue_watching: [], watchlist: [] };
+      if (!cloudDatabase.view_counts) cloudDatabase.view_counts = {};
+      if (!cloudDatabase.continue_watching) cloudDatabase.continue_watching = [];
+      if (!cloudDatabase.watchlist) cloudDatabase.watchlist = [];
+      updateWatchlistBadge();
+      renderContinueWatching();
+    }
+
+    function persistCloudDatabaseLocal() {
+      try {
+        localStorage.setItem(DROPBOX_APP_STATE_LOCAL_KEY, JSON.stringify(cloudDatabase));
+        localStorage.setItem('anidrive_dropbox_cache', JSON.stringify(cloudDatabase));
+      } catch (e) {}
+    }
+
+    async function uploadCloudDatabaseToDropbox() {
+      if (cloudStateUploadInFlight) { cloudStateUploadQueued = true; return; }
+      cloudStateUploadInFlight = true;
+      try {
+        const token = await getDropboxAccessToken();
+        const payload = { ...cloudDatabase, _updatedAt: Date.now(), _schema: 1 };
+        cloudDatabase = payload;
+        persistCloudDatabaseLocal();
+        localStorage.setItem(DROPBOX_APP_STATE_UPDATED_KEY, String(payload._updatedAt));
+
+        // Pastikan folder sinkronisasi ada. Jika sudah ada, Dropbox akan
+        // mengembalikan 409 dan itu aman untuk diabaikan.
+        try {
+          await fetch("https://api.dropboxapi.com/2/files/create_folder_v2", {
+            method: "POST",
+            headers: {
+              Authorization: `Bearer ${token}`,
+              "Content-Type": "application/json"
+            },
+            body: JSON.stringify({ path: "/AniDrive Sync", autorename: false })
+          });
+        } catch (_) {}
+
+        const body = new TextEncoder().encode(JSON.stringify(payload));
+        const res = await fetch("https://content.dropboxapi.com/2/files/upload", {
+          method: "POST",
+          headers: {
+            Authorization: `Bearer ${token}`,
+            "Content-Type": "application/octet-stream",
+            "Dropbox-API-Arg": JSON.stringify({
+              path: DROPBOX_APP_STATE_PATH,
+              mode: "overwrite",
+              autorename: false,
+              mute: true
+            })
+          },
+          body
+        });
+        if (!res.ok) throw new Error(`Upload state Dropbox gagal (${res.status})`);
+      } catch (e) {
+        console.warn("Sinkronisasi data cloud gagal:", e);
+      } finally {
+        cloudStateUploadInFlight = false;
+        if (cloudStateUploadQueued) {
+          cloudStateUploadQueued = false;
+          scheduleCloudStateUpload();
+        }
+      }
+    }
+
+    function scheduleCloudStateUpload() {
+      persistCloudDatabaseLocal();
+      updateWatchlistBadge();
+      clearTimeout(cloudStateUploadTimer);
+      cloudStateUploadTimer = setTimeout(() => uploadCloudDatabaseToDropbox(), 1800);
+    }
+
+    async function loadCloudDatabaseFromDropbox() {
+      try {
+        const token = await getDropboxAccessToken();
+        const res = await fetch("https://content.dropboxapi.com/2/files/download", {
+          method: "POST",
+          headers: {
+            Authorization: `Bearer ${token}`,
+            "Dropbox-API-Arg": JSON.stringify({ path: DROPBOX_APP_STATE_PATH })
+          }
+        });
+        if (res.status === 409 || res.status === 404) return false;
+        if (!res.ok) throw new Error(`Download state Dropbox gagal (${res.status})`);
+        const remote = JSON.parse(await res.text());
+        if (!remote || typeof remote !== 'object') return false;
+
+        const localUpdated = Number(localStorage.getItem(DROPBOX_APP_STATE_UPDATED_KEY) || 0);
+        const remoteUpdated = Number(remote._updatedAt || 0);
+        if (remoteUpdated >= localUpdated) {
+          delete remote._schema;
+          delete remote._updatedAt;
+          cloudDatabase = {
+            view_counts: remote.view_counts || {},
+            continue_watching: remote.continue_watching || [],
+            watchlist: remote.watchlist || []
+          };
+          localStorage.setItem(DROPBOX_APP_STATE_UPDATED_KEY, String(remoteUpdated));
+          persistCloudDatabaseLocal();
+          updateWatchlistBadge();
+          renderContinueWatching();
+          return true;
+        }
+        return false;
+      } catch (e) {
+        console.warn("Data cloud belum dapat dimuat:", e);
+        return false;
+      }
+    }
+
+    async function syncDbToCloud() {
+      scheduleCloudStateUpload();
+    }
+
+    function toggleSearchBar() {
+      const container = document.getElementById('search-bar-container');
+      const input = document.getElementById('search-input');
+      if (container.classList.contains('hidden')) {
+        container.classList.remove('hidden');
+        container.classList.add('flex');
+        input.focus();
+      } else {
+        container.classList.add('hidden');
+        container.classList.remove('flex');
+        input.value = '';
+        applySorting();
+      }
+    }
+
+    function handleSearch(query) {
+      const q = query.toLowerCase().trim();
+      const grid = document.getElementById('catalog-grid');
+      const statusMsg = document.getElementById('status-msg');
+
+      if (!q) {
+        applySorting();
+        return;
+      }
+
+      let items = (categoriesData[activeCategory] || []).filter(item => {
+        const titleMatch = item.title.toLowerCase().includes(q);
+        const epMatch = item.episodes.some(ep => ep.name.toLowerCase().includes(q));
+        return titleMatch || epMatch;
+      });
+
+      statusMsg.classList.add('hidden');
+      grid.innerHTML = '';
+
+      if (items.length === 0) {
+        grid.innerHTML = `<div class="col-span-full py-10 text-center text-zinc-500 text-xs">Tidak ada anime yang cocok dengan "${query}".</div>`;
+        return;
+      }
+
+      items.forEach((item) => {
+        const originalIdx = (categoriesData[activeCategory] || []).indexOf(item);
+        const card = document.createElement('div');
+        card.className = "group relative cursor-pointer rounded-md overflow-hidden bg-black/50 transition duration-300 hover:scale-105 hover:z-20 shadow-lg border border-zinc-800/80";
+        card.onclick = () => openCrunchyrollWebDetail(originalIdx);
+        card.innerHTML = `
+          <div class="aspect-[2/3] w-full bg-zinc-950 overflow-hidden">
+            <img src="${CATALOG_PLACEHOLDER}" data-dropbox-image-path="${item.posterThumbPath || ''}" data-dropbox-file-id="${item.posterFileId || ''}" data-dropbox-shared-url="${item.posterThumbSharedUrl || DROPBOX_SHARED_LINK}" data-image-kind="poster" alt="${item.title}" class="w-full h-full object-cover group-hover:scale-105 transition duration-500" loading="lazy" decoding="async" fetchpriority="low">
+          </div>
+          <div class="p-2 sm:p-2.5">
+            <h3 class="font-semibold text-xs truncate group-hover:text-orange-400 transition">${item.title}</h3>
+            <span class="text-[10px] text-zinc-400">${item.episodes.length} Video</span>
+          </div>
+        `;
+        grid.appendChild(card);
+      });
+      lucide.createIcons();
+      hydrateOptimizedImages();
+    }
+
+    function updateWatchlistBadge() {
+      const badge = document.getElementById('watchlist-badge');
+      const list = cloudDatabase.watchlist || [];
+      if (list.length > 0) {
+        badge.innerText = list.length;
+        badge.classList.remove('hidden');
+      } else {
+        badge.classList.add('hidden');
+      }
+    }
+
+    function toggleCurrentAnimeWatchlist() {
+      if (!currentActiveDetailItem) return;
+      const title = currentActiveDetailItem.title;
+      if (!cloudDatabase.watchlist) cloudDatabase.watchlist = [];
+
+      const existsIdx = cloudDatabase.watchlist.findIndex(item => item.title === title);
+      const desktopBtn = document.getElementById('web-detail-bookmark-btn');
+
+      if (existsIdx !== -1) {
+        cloudDatabase.watchlist.splice(existsIdx, 1);
+        if (desktopBtn) desktopBtn.className = "p-2.5 bg-black/70 hover:bg-zinc-800 border border-white/20 rounded-xl text-white transition backdrop-blur-md";
+        showSyncToast("Dihapus dari Daftar", `"${title}" dihapus.`);
+      } else {
+        cloudDatabase.watchlist.unshift({
+          title: currentActiveDetailItem.title,
+          posterUrl: currentActiveDetailItem.posterUrl,
+          category: currentActiveDetailItem.category,
+          episodesCount: currentActiveDetailItem.episodes.length
+        });
+        if (desktopBtn) desktopBtn.className = "p-2.5 bg-[#f47521] text-white rounded-xl border border-[#f47521] transition shadow-lg";
+        showSyncToast("Ditambahkan ke Daftar", `"${title}" disimpan.`);
+      }
+
+      syncDbToCloud();
+      lucide.createIcons();
+    }
+
+    function openWatchlistModal() {
+      const modal = document.getElementById('watchlist-modal');
+      const grid = document.getElementById('watchlist-grid');
+      const subCount = document.getElementById('watchlist-count-sub');
+      const list = cloudDatabase.watchlist || [];
+
+      subCount.innerText = `${list.length} judul tersimpan`;
+      grid.innerHTML = '';
+
+      if (list.length === 0) {
+        grid.innerHTML = `
+          <div class="col-span-full py-16 sm:py-20 flex flex-col items-center justify-center text-center space-y-2.5">
+            <div class="w-12 h-12 sm:w-14 sm:h-14 rounded-full bg-zinc-900 border border-zinc-800 flex items-center justify-center text-zinc-500">
+              <i data-lucide="bookmark" class="w-6 h-6 sm:w-7 sm:h-7"></i>
+            </div>
+            <h4 class="font-bold text-xs sm:text-sm text-zinc-300">Belum Ada Judul Tersimpan</h4>
+          </div>
+        `;
+      } else {
+        list.forEach(item => {
+          const card = document.createElement('div');
+          card.className = "group relative rounded-xl overflow-hidden bg-[#0d1527]/90 border border-blue-900/40 shadow-md hover:border-[#f47521]/60 transition duration-300 flex flex-col cursor-pointer";
+          card.onclick = () => {
+            closeWatchlistModal();
+            openDetailByTitle(item.title);
+          };
+          card.innerHTML = `
+            <div class="relative aspect-[2/3] w-full bg-zinc-950 overflow-hidden">
+              <img src="${CATALOG_PLACEHOLDER}" data-dropbox-image-path="${item.posterThumbPath || ''}" data-dropbox-file-id="${item.posterFileId || ''}" data-dropbox-shared-url="${item.posterThumbSharedUrl || DROPBOX_SHARED_LINK}" data-image-kind="poster" alt="${item.title}" class="w-full h-full object-cover group-hover:scale-105 transition duration-500" loading="lazy" decoding="async" fetchpriority="low">
+              <span class="absolute top-2 left-2 bg-black/80 backdrop-blur-sm text-[#f47521] border border-[#f47521]/30 text-[8px] sm:text-[9px] font-black uppercase px-1.5 sm:px-2 py-0.5 rounded-md">
+                ${item.category || 'ANIME'}
+              </span>
+              <button onclick="event.stopPropagation(); removeWatchlistDirect('${item.title}')" class="absolute top-2 right-2 w-6 h-6 sm:w-7 sm:h-7 rounded-full bg-black/75 hover:bg-red-600 text-zinc-300 hover:text-white flex items-center justify-center transition border border-white/20 shadow-md" title="Hapus dari Daftar">
+                <i data-lucide="trash-2" class="w-3 h-3 sm:w-3.5 sm:h-3.5"></i>
+              </button>
+            </div>
+            <div class="p-2.5 sm:p-3 bg-black/50 border-t border-zinc-800/60 flex flex-col justify-between flex-1">
+              <h4 class="font-bold text-[11px] sm:text-xs truncate text-zinc-100 group-hover:text-[#f47521] transition" title="${item.title}">
+                ${item.title}
+              </h4>
+            </div>
+          `;
+          grid.appendChild(card);
+        });
+      }
+
+      modal.classList.remove('hidden');
+      modal.classList.add('flex');
+      lucide.createIcons();
+    }
+
+    function closeWatchlistModal() {
+      document.getElementById('watchlist-modal').classList.add('hidden');
+      document.getElementById('watchlist-modal').classList.remove('flex');
+    }
+
+    function removeWatchlistDirect(title) {
+      if (!cloudDatabase.watchlist) return;
+      cloudDatabase.watchlist = cloudDatabase.watchlist.filter(item => item.title !== title);
+      syncDbToCloud();
+      openWatchlistModal();
+    }
+
+    function recordView(animeTitle) {
+      if (!cloudDatabase.view_counts) cloudDatabase.view_counts = {};
+      cloudDatabase.view_counts[animeTitle] = (cloudDatabase.view_counts[animeTitle] || 0) + 1;
+      syncDbToCloud();
+    }
+
+    function saveProgress(animeTitle, epName, fileUrl, subUrl, posterUrl, currentTime, duration) {
+      if (!duration || duration <= 0 || !currentTime) return;
+      if (!cloudDatabase.continue_watching) cloudDatabase.continue_watching = [];
+      
+      let list = cloudDatabase.continue_watching.filter(item => item.animeTitle !== animeTitle);
+      const remainingSec = Math.max(0, duration - currentTime);
+      const remainingMin = Math.ceil(remainingSec / 60);
+
+      list.unshift({
+        animeTitle,
+        epName,
+        fileUrl,
+        sharedLinkPath: currentPlayingInfo?.sharedLinkPath || null,
+        subUrl,
+        posterUrl,
+        currentTime: Math.floor(currentTime),
+        duration: Math.floor(duration),
+        progressPercent: Math.min(100, Math.round((currentTime / duration) * 100)),
+        remainingText: `${remainingMin}m tersisa`,
+        timestamp: Date.now()
+      });
+      cloudDatabase.continue_watching = list.slice(0, 15);
+      renderContinueWatching();
+      syncDbToCloud();
+    }
+
+    function clearContinueWatchingCloud() {
+      cloudDatabase.continue_watching = [];
+      renderContinueWatching();
+      syncDbToCloud();
+      showSyncToast("Riwayat Dihapus", "Riwayat menonton telah dibersihkan.");
+    }
+
+    // =========================================================================
+    // LANJUTKAN MENONTON: SLIDER 1 BARIS HORIZONTAL
+    // =========================================================================
+    function renderContinueWatching() {
+      const section = document.getElementById('continue-watching-section');
+      const grid = document.getElementById('continue-watching-grid');
+      const list = cloudDatabase.continue_watching || [];
+
+      if (list.length === 0) {
+        section.classList.add('hidden');
+        grid.innerHTML = '';
+        return;
+      }
+
+      section.classList.remove('hidden');
+      grid.innerHTML = '';
+
+      list.forEach((item) => {
+        const card = document.createElement('div');
+        card.className = "flex-shrink-0 w-64 sm:w-72 rounded-xl overflow-hidden bg-black/50 border border-zinc-800 shadow-md flex flex-col group cursor-pointer snap-start transition hover:border-[#f47521]/60";
+        
+        card.onclick = () => resumeContinueWatching(item.fileUrl, `${item.animeTitle} - ${item.epName}`, item.subUrl || '', item.currentTime);
+
+        card.innerHTML = `
+          <div class="relative w-full aspect-video bg-zinc-950 overflow-hidden">
+            <img src="${item.posterUrl}" alt="${item.animeTitle}" class="w-full h-full object-cover group-hover:scale-105 transition duration-500 filter brightness-90" onerror="this.onerror=null;this.src='data:image/svg+xml;charset=UTF-8,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 600 900'%3E%3Crect width='600' height='900' fill='%23111b2d'/%3E%3Ctext x='50%25' y='48%25' fill='%23f47521' font-size='64' font-family='Arial' font-weight='700' text-anchor='middle'%3EAniDrive%3C/text%3E%3Ctext x='50%25' y='56%25' fill='%2394a3b8' font-size='28' font-family='Arial' text-anchor='middle'%3EPoster%3C/text%3E%3C/svg%3E'">
+            
+            <div class="absolute inset-0 bg-gradient-to-t from-black via-black/30 to-transparent flex items-center justify-center">
+              <div class="w-8 h-8 rounded-full bg-black/60 group-hover:bg-[#f47521] flex items-center justify-center transition border border-white/40 shadow">
+                <i data-lucide="play" class="w-4 h-4 fill-current text-white translate-x-0.5"></i>
+              </div>
+            </div>
+
+            <span class="absolute bottom-2 right-2 text-[10px] font-bold text-zinc-200 bg-black/80 px-1.5 py-0.5 rounded backdrop-blur-sm">
+              ${item.remainingText || `${item.progressPercent}%`}
+            </span>
+
+            <div class="absolute bottom-0 inset-x-0 h-1 bg-zinc-800">
+              <div class="h-full bg-[#f47521]" style="width: ${item.progressPercent}%;"></div>
+            </div>
+          </div>
+
+          <div class="p-2.5 flex items-center justify-between bg-black/60 gap-2">
+            <div class="min-w-0 flex-1">
+              <h4 class="font-bold text-xs text-white truncate group-hover:text-[#f47521] transition">${item.animeTitle}</h4>
+              <p class="text-[10px] text-zinc-400 truncate">${item.epName}</p>
+            </div>
+            <button onclick="event.stopPropagation(); removeFromContinueWatching('${item.animeTitle}')" class="p-1 text-zinc-400 hover:text-red-400 transition" title="Hapus Riwayat">
+              <i data-lucide="more-vertical" class="w-4 h-4"></i>
+            </button>
+          </div>
+        `;
+        grid.appendChild(card);
+      });
+
+      lucide.createIcons();
+      hydrateOptimizedImages();
+    }
+
+    function resumeContinueWatching(fileUrl, title, subUrl, resumeTime, sharedLinkPath = null) {
+      const info = {
+        animeTitle: title.split(' - ')[0] || title,
+        epName: title.split(' - ')[1] || 'Episode',
+        posterUrl: '',
+        sharedLinkPath: sharedLinkPath || null
+      };
+      const resolvedUrl = sharedLinkPath ? getSharedVideoDirectUrl(sharedLinkPath) : fileUrl;
+      openPlayer(resolvedUrl, title, subUrl, resumeTime, info);
+    }
+
+    function removeFromContinueWatching(animeTitle) {
+      if (!cloudDatabase.continue_watching) cloudDatabase.continue_watching = [];
+      cloudDatabase.continue_watching = cloudDatabase.continue_watching.filter(item => item.animeTitle !== animeTitle);
+      renderContinueWatching();
+      syncDbToCloud();
+    }
+
+    function openDetailByTitle(title) {
+      for (const cat in categoriesData) {
+        const foundIdx = categoriesData[cat].findIndex(item => item.title === title);
+        if (foundIdx !== -1) {
+          switchCategory(cat);
+          openCrunchyrollWebDetail(foundIdx);
+          return;
+        }
+      }
+    }
+
+    function createAnimeCard(item, index) {
+      const card = document.createElement('div');
+      card.className = "flex-shrink-0 w-32 sm:w-44 h-fit self-start rounded-xl overflow-hidden bg-black/40 border border-zinc-800/80 shadow-md group cursor-pointer transition hover:border-[#f47521]/60 snap-start flex flex-col";
+      card.onclick = () => openCrunchyrollWebDetail(index);
+      card.innerHTML = `
+        <div class="relative aspect-[2/3] w-full bg-zinc-950 overflow-hidden">
+          <img src="${CATALOG_PLACEHOLDER}" data-dropbox-image-path="${item.posterThumbPath || ''}" data-dropbox-file-id="${item.posterFileId || ''}" data-dropbox-shared-url="${item.posterThumbSharedUrl || DROPBOX_SHARED_LINK}" data-image-kind="poster" alt="${item.title}" class="w-full h-full object-cover group-hover:scale-105 transition duration-500" loading="lazy" decoding="async" fetchpriority="low">
+          
+          <div class="absolute top-1.5 right-1.5 p-1 rounded-md bg-black/60 text-[#f47521] opacity-0 group-hover:opacity-100 transition">
+            <i data-lucide="bookmark" class="w-3.5 h-3.5 fill-current"></i>
+          </div>
+        </div>
+        <div class="p-2 sm:p-2.5">
+          <h3 class="font-bold text-xs text-white truncate group-hover:text-[#f47521] transition" title="${item.title}">${item.title}</h3>
+          <div class="flex items-center justify-between text-[10px] text-zinc-400 mt-1">
+            <span class="truncate">Sulih Suara English | Takarir</span>
+            <button onclick="event.stopPropagation(); openCrunchyrollWebDetail(${index})" class="p-0.5 text-zinc-400 hover:text-white">
+              <i data-lucide="more-vertical" class="w-3.5 h-3.5"></i>
+            </button>
+          </div>
+        </div>
+      `;
+      return card;
+    }
+
+    // =========================================================================
+    // PARSER DROPBOX DINAMIS - PAGINATION + STRUKTUR FOLDER FLEKSIBEL
+    // =========================================================================
+
+    async function listAllDropboxEntries(accessToken, payload) {
+      const allEntries = [];
+      const sharedUrl = payload?.shared_link?.url;
+
+      // Dropbox tidak mendukung recursive=true untuk list_folder dengan shared_link.
+      // Jadi telusuri folder shared-link satu per satu dan simpan path relatifnya.
+      if (sharedUrl) {
+        // Shared-link list_folder only supports non-recursive mode. Build the
+        // relative path from folder NAMES returned by the shared link, rather
+        // than trusting path_display/path_lower (which can differ by namespace).
+        const queue = [""];
+        const queued = new Set([""]);
+        const visited = new Set();
+
+        while (queue.length) {
+          const currentPath = queue.shift();
+          if (visited.has(currentPath)) continue;
+          visited.add(currentPath);
+
+          let cursor = null;
+          let first = true;
+          while (true) {
+            const endpoint = first
+              ? "https://api.dropboxapi.com/2/files/list_folder"
+              : "https://api.dropboxapi.com/2/files/list_folder/continue";
+            const body = first
+              ? {
+                  // For a shared link, path is RELATIVE to the shared-link root.
+                  // Do not prefix it with the user's full Dropbox path.
+                  path: currentPath,
+                  shared_link: { url: sharedUrl },
+                  recursive: false,
+                  include_deleted: false,
+                  include_media_info: false
+                }
+              : { cursor };
+
+            const res = await fetch(endpoint, {
+              method: "POST",
+              headers: {
+                "Authorization": `Bearer ${accessToken}`,
+                "Content-Type": "application/json"
+              },
+              body: JSON.stringify(body)
+            });
+
+            const raw = await res.text();
+            if (!res.ok) {
+              let msg = raw;
+              try { msg = JSON.parse(raw).error_summary || raw; } catch (_) {}
+              throw new Error(`Dropbox shared-link list gagal (${res.status}): ${msg}`);
+            }
+
+            const data = JSON.parse(raw);
+            for (const entry of (data.entries || [])) {
+              const name = String(entry.name || "").trim();
+              const normalizedRel = [currentPath, name]
+                .filter(Boolean)
+                .join("/")
+                .replace(/^\/+/, "");
+
+              const normalizedEntry = {
+                ...entry,
+                // Keep the relative path for shared-link operations AND the
+                // verified account path for native Dropbox streaming.
+                path_display: normalizedRel,
+                path_lower: normalizedRel.toLowerCase(),
+                _shared_link_path: normalizedRel,
+                _account_path: DROPBOX_ANIDRIVE_ROOT + "/" + normalizedRel
+              };
+              allEntries.push(normalizedEntry);
+
+              if (entry['.tag'] === 'folder' && name) {
+                const childPath = normalizedRel;
+                if (!queued.has(childPath)) {
+                  queued.add(childPath);
+                  queue.push(childPath);
+                }
+              }
+            }
+
+            if (!data.has_more || !data.cursor) break;
+            cursor = data.cursor;
+            first = false;
+          }
+        }
+        return allEntries;
+      }
+
+      // Folder akun biasa tetap memakai recursive=true + cursor.
+      const firstPayload = { ...payload, include_media_info: false };
+      let cursor = null;
+      let first = true;
+      while (true) {
+        const endpoint = first
+          ? "https://api.dropboxapi.com/2/files/list_folder"
+          : "https://api.dropboxapi.com/2/files/list_folder/continue";
+        const body = first ? firstPayload : { cursor };
+        const res = await fetch(endpoint, {
+          method: "POST",
+          headers: {
+            "Authorization": `Bearer ${accessToken}`,
+            "Content-Type": "application/json"
+          },
+          body: JSON.stringify(body)
+        });
+        const raw = await res.text();
+        if (!res.ok) {
+          let msg = raw;
+          try { msg = JSON.parse(raw).error_summary || raw; } catch (_) {}
+          throw new Error(`Dropbox list_folder gagal (${res.status}): ${msg}`);
+        }
+        const data = JSON.parse(raw);
+        allEntries.push(...(data.entries || []));
+        if (!data.has_more || !data.cursor) break;
+        cursor = data.cursor;
+        first = false;
+      }
+      return allEntries;
+    }
+
+    function getCleanName(name) {
+      return (name || "").replace(/\.[^/.]+$/, "").trim();
+    }
+
+    function isCategoryName(name) {
+      return MAIN_CATEGORIES.includes((name || "").trim().toUpperCase());
+    }
+
+    function getDropboxFilePath(file) {
+      if (file && file._account_path) return file._account_path;
+      const display = String(file?.path_display || "");
+      const lower = String(file?.path_lower || "");
+      const rel = String(file?._shared_link_path || "").replace(/^\/+/, "");
+      if (display.startsWith(DROPBOX_ANIDRIVE_ROOT + "/") || display === DROPBOX_ANIDRIVE_ROOT) return display;
+      if (lower.startsWith(DROPBOX_ANIDRIVE_ROOT.toLowerCase() + "/") || lower === DROPBOX_ANIDRIVE_ROOT.toLowerCase()) return lower;
+      if (rel) return DROPBOX_ANIDRIVE_ROOT + "/" + rel;
+      return lower || display || "";
+    }
+
+    function detectCategory(parts) {
+      for (const part of parts) {
+        const upper = (part || "").trim().toUpperCase();
+        if (MAIN_CATEGORIES.includes(upper)) return upper;
+
+        const normalized = upper.replace(/^[0-9\s._-]+/, "");
+        if (MAIN_CATEGORIES.includes(normalized)) return normalized;
+
+        if (/\bMOVIE(S)?\b/.test(upper)) return "MOVIE";
+        if (/\bANIME(S)?\b/.test(upper)) return "ANIME";
+        if (/\bHENTAI\b/.test(upper)) return "HENTAI";
+        if (/\bSEX\b/.test(upper)) return "SEX";
+      }
+      return "ANIME";
+    }
+
+    function detectAnimeTitle(parts, fileName) {
+      // Cari folder yang paling mungkin menjadi judul anime.
+      // Abaikan root aplikasi, kategori, dan folder khusus.
+      const ignored = new Set([
+        "ANIDRIVE", "LOGO", "POSTER", "POSTERS", "BANNER", "BANER",
+        "LOGO APLIKASI", "THUMB", "THUMBS", "SUB", "SUBTITLE",
+        "SUBTITLES", "VIDEO", "VIDEOS"
+      ]);
+
+      const candidates = parts.slice(0, -1).filter(part => {
+        const normalized = (part || "").trim().toUpperCase();
+        return normalized &&
+          !MAIN_CATEGORIES.includes(normalized) &&
+          !ignored.has(normalized);
+      });
+
+      if (candidates.length > 0) {
+        // Folder terdalam sebelum file biasanya adalah nama judul.
+        return candidates[candidates.length - 1].trim();
+      }
+
+      // Fallback jika video langsung berada di root/kategori.
+      return getCleanName(fileName) || "Koleksi Anime";
+    }
+
+    function isVideoFile(fileName) {
+      const ext = (fileName || "").split(".").pop().toLowerCase();
+      return [
+        "mp4", "mkv", "webm", "avi", "mov", "m4v",
+        "mpg", "mpeg", "ts", "m2ts", "mts", "wmv", "flv", "3gp"
+      ].includes(ext);
+    }
+
+    function isImageFile(fileName) {
+      const ext = (fileName || "").split(".").pop().toLowerCase();
+      return ["jpg", "jpeg", "png", "webp", "gif", "svg", "avif"].includes(ext);
+    }
+
+    // =====================================================================
+    // FAST CATALOG CACHE — tampilkan katalog terakhir seketika, lalu refresh
+    // Dropbox di background. Temporary links TIDAK disimpan karena kedaluwarsa.
+    // =====================================================================
+    const FAST_CATALOG_CACHE_KEY = "anidrive_catalog_cache_v3_fileids";
+    const FAST_CATALOG_CACHE_MAX_AGE = 1000 * 60 * 60 * 24 * 7; // 7 hari
+    
+
+    function saveFastCatalogCache() {
+      try {
+        const compact = {};
+        MAIN_CATEGORIES.forEach(cat => {
+          compact[cat] = (categoriesData[cat] || []).map(item => ({
+            title: item.title,
+            category: item.category,
+            modifiedTime: item.modifiedTime || Date.now(),
+            posterFileId: item.posterFileId || null,
+            posterPath: item.posterPath || null,
+            posterSharedLinkPath: item.posterSharedLinkPath || null,
+            posterThumbPath: item.posterThumbPath || item.posterSharedLinkPath || null,
+            posterThumbSharedUrl: item.posterThumbSharedUrl || DROPBOX_SHARED_LINK,
+            episodes: (item.episodes || []).map(ep => ({
+              id: ep.id,
+              sharedLinkPath: ep.sharedLinkPath || null,
+              name: ep.name,
+              subUrl: ep.subUrl || null
+            }))
+          }));
+        });
+        localStorage.setItem(FAST_CATALOG_CACHE_KEY, JSON.stringify({
+          savedAt: Date.now(),
+          categories: compact
+        }));
+      } catch (e) {
+        console.warn("Cache katalog gagal disimpan:", e);
+      }
+    }
+
+    function restoreFastCatalogCache() {
+      try {
+        const raw = localStorage.getItem(FAST_CATALOG_CACHE_KEY);
+        if (!raw) return false;
+        const data = JSON.parse(raw);
+        if (!data || !data.categories || (Date.now() - (data.savedAt || 0)) > FAST_CATALOG_CACHE_MAX_AGE) return false;
+
+        categoriesData = { 'ANIME': [], 'MOVIE': [], 'HENTAI': [], 'SEX': [] };
+        MAIN_CATEGORIES.forEach(cat => {
+          categoriesData[cat] = (data.categories[cat] || []).map(item => ({
+            ...item,
+            posterUrl: item.posterSharedLinkPath ? getSharedLinkDirectUrl(item.posterSharedLinkPath) : CATALOG_PLACEHOLDER,
+            posterThumbPath: item.posterThumbPath || item.posterSharedLinkPath || null,
+            posterThumbSharedUrl: item.posterThumbSharedUrl || DROPBOX_SHARED_LINK,
+            episodes: (item.episodes || []).map(ep => ({
+              ...ep,
+              thumbUrl: item.posterSharedLinkPath ? getSharedLinkDirectUrl(item.posterSharedLinkPath) : CATALOG_PLACEHOLDER
+            }))
+          }));
+        });
+        return MAIN_CATEGORIES.some(cat => categoriesData[cat].length > 0);
+      } catch (e) {
+        return false;
+      }
+    }
+
+    function getFastCatalogCacheAge() {
+      try {
+        const raw = localStorage.getItem(FAST_CATALOG_CACHE_KEY);
+        if (!raw) return Infinity;
+        const data = JSON.parse(raw);
+        return Date.now() - Number(data.savedAt || 0);
+      } catch (e) {
+        return Infinity;
+      }
+    }
+
+    function showCachedCatalogImmediately() {
+      if (!restoreFastCatalogCache()) return false;
+      try {
+        renderContinueWatching();
+        switchCategory(activeCategory);
+        const statusMsg = document.getElementById('status-msg');
+        if (statusMsg) {
+          statusMsg.innerText = "Katalog siap dari cache • memperbarui Dropbox di latar belakang...";
+          statusMsg.classList.remove('hidden');
+          setTimeout(() => statusMsg.classList.add('hidden'), 1800);
+        }
+      } catch (e) {}
+      return true;
+    }
+
+    async function initDropboxSync(forceRefresh = false) {
+      const statusMsg = document.getElementById('status-msg');
+      const hadCatalogCache = showCachedCatalogImmediately();
+      statusMsg.innerText = hadCatalogCache
+        ? "Memperbarui katalog Dropbox di latar belakang..."
+        : "Memuat katalog Dropbox...";
+      if (!hadCatalogCache) statusMsg.classList.remove('hidden');
+
+      try {
+        loadInitialCache();
+
+        const currentAccessToken = await getDropboxAccessToken();
+        optimizedImageToken = currentAccessToken;
+        if (!currentAccessToken) {
+          throw new Error("Gagal mendapatkan Access Token Dropbox.");
+        }
+
+        // Ambil state cloud terlebih dahulu agar perangkat baru mengetahui
+        // riwayat/posisi/bookmark yang tersimpan di Dropbox.
+        await loadCloudDatabaseFromDropbox();
+
+        // ---------------------------------------------------------------------
+        // 1. LOGO & BANNER — ambil dari shared folder Branding Dropbox.
+        //    Gunakan temporary-link dari file yang benar-benar ditemukan di
+        //    folder branding. Ini lebih kompatibel pada Chrome/content://.
+        // ---------------------------------------------------------------------
+        try {
+          const logoRes = await fetch("https://api.dropboxapi.com/2/files/list_folder", {
+            method: "POST",
+            headers: {
+              "Authorization": `Bearer ${currentAccessToken}`,
+              "Content-Type": "application/json"
+            },
+            body: JSON.stringify({
+              path: "",
+              shared_link: { url: DROPBOX_LOGO_LINK },
+              recursive: false,
+              include_deleted: false,
+              include_media_info: false
+            })
+          });
+
+          if (!logoRes.ok) {
+            throw new Error(`Folder branding gagal dipindai (${logoRes.status})`);
+          }
+
+          const logoData = await logoRes.json();
+          const logoFiles = (logoData.entries || []).filter(e =>
+            e['.tag'] === 'file' && isImageFile(e.name || e.path_display || '')
+          );
+
+          const norm = v => String(v || "").toLowerCase().replace(/\\/g, "/");
+          const getPath = e => e.path_lower || e.path_display || "";
+          const getExt = e => String(e.name || "").split(".").pop().toLowerCase();
+
+          // Temporary link dari Dropbox: tidak memakai URL eksternal/random.
+          const tempImage = async (entry) => {
+            if (!entry) return "";
+            const path = getPath(entry);
+            try {
+              const url = await getDropboxTemporaryLink(path || entry.id || "");
+              return url || "";
+            } catch (_) {
+              return "";
+            }
+          };
+
+          // Logo aplikasi
+          const logoCandidates = logoFiles.filter(e => {
+            const p = norm(getPath(e));
+            return p.includes("/logo aplikasi/") || p.startsWith("logo aplikasi/");
+          });
+          const logoFile =
+            logoCandidates.find(e => norm(e.name) === "cover.jpg.png") ||
+            logoCandidates.find(e => norm(e.name).includes("cover")) ||
+            logoCandidates[0];
+
+          const logoLink = await tempImage(logoFile);
+          if (logoLink) {
+            const appLogo = document.getElementById("app-logo");
+            const favIcon = document.getElementById("dynamic-favicon");
+            const loginLogo = document.getElementById("login-logo-img");
+            if (appLogo) {
+              appLogo.src = logoLink;
+              appLogo.dataset.brandingLoaded = "1";
+            }
+            if (favIcon) favIcon.href = logoLink;
+            if (loginLogo) loginLogo.src = logoLink;
+          }
+
+          const folderMap = {
+            ANIME: ["baner anime", "banner anime"],
+            MOVIE: ["baner movie", "banner movie"],
+            HENTAI: ["baner hentai", "banner hentai"],
+            SEX: ["baner sex", "banner sex"]
+          };
+
+          // Ambil maksimal 3 banner per kategori agar startup tetap ringan.
+          for (const cat of MAIN_CATEGORIES) {
+            const names = folderMap[cat].map(norm);
+            const candidates = logoFiles.filter(e => {
+              const p = norm(getPath(e));
+              return names.some(name =>
+                p.includes("/" + name + "/") || p.startsWith(name + "/")
+              );
+            });
+
+            const links = [];
+            for (const entry of candidates.slice(0, 3)) {
+              const url = await tempImage(entry);
+              if (url) links.push(url);
+            }
+            if (links.length) categoryBanners[cat] = links;
+          }
+
+          setupBannerSlider(activeCategory);
+        } catch (logoErr) {
+          console.warn("Branding Dropbox gagal dimuat:", logoErr);
+          // Jangan pernah mengganti banner dengan gambar acak/eksternal.
+          setupBannerSlider(activeCategory);
+        }
+
+        // Mode cepat: setelah cache dipakai dan branding dipasang, jangan scan
+        // seluruh Dropbox setiap kali halaman dibuka. Tombol Sync Cloud dapat
+        // dipakai kapan saja untuk refresh katalog terbaru.
+        // Jangan hentikan sinkronisasi hanya karena cache masih muda.
+        // Cache dipakai untuk tampilan instan, tetapi Dropbox tetap menjadi sumber
+        // data utama agar kategori yang sebelumnya 0 tidak terkunci selama 6 jam.
+
+        // ---------------------------------------------------------------------
+        // 2. PINDAI VIDEO - prioritaskan struktur Dropbox AniDrive yang nyata,
+        //    lalu fallback ke root dan shared link.
+        //
+        //    PENTING: sebuah payload dianggap berhasil hanya jika benar-benar
+        //    berisi file video. Sebelumnya kode berhenti pada payload pertama
+        //    yang hanya berisi folder/branding, sehingga katalog bisa menjadi 0.
+        // ---------------------------------------------------------------------
+        const scanPayloads = [
+          // PRIMARY: connected Dropbox account. This is the verified real path
+          // of the AniDrive catalog and is also valid for get_temporary_link.
+          { path: DROPBOX_ANIDRIVE_ROOT, recursive: true, include_media_info: false },
+          { path: "/SWORD HUNTER/AniDrive", recursive: true, include_media_info: false },
+          // FALLBACK: public shared folder. Shared-link traversal is kept only
+          // as a fallback because its returned paths are relative to the link.
+          { path: "", shared_link: { url: DROPBOX_SHARED_LINK }, recursive: false, include_media_info: false }
+        ];
+
+        const countVideoEntries = (list) =>
+          (list || []).filter(e =>
+            e && e['.tag'] === 'file' && isVideoFile(e.name || e.path_display || '')
+          ).length;
+
+        async function scanForVideoEntries(accessToken) {
+          let bestEntries = [];
+          let bestVideoCount = 0;
+          let lastError = null;
+
+          for (const payload of scanPayloads) {
+            try {
+              const foundEntries = await listAllDropboxEntries(accessToken, payload);
+              const videoCount = countVideoEntries(foundEntries);
+              console.log(
+                `Dropbox scan ${payload.shared_link ? "shared-link" : (payload.path || "/")}: ${foundEntries.length} item, ${videoCount} video`
+              );
+
+              if (videoCount > bestVideoCount) {
+                bestEntries = foundEntries;
+                bestVideoCount = videoCount;
+              }
+
+              // Stop as soon as the authoritative shared catalog returns real
+              // video files. Do not continue into the whole Dropbox account.
+              if (payload.shared_link && videoCount > 0) break;
+            } catch (e) {
+              lastError = e;
+              console.warn("Percobaan scan Dropbox gagal:", e);
+            }
+          }
+
+          return { entries: bestEntries, videoCount: bestVideoCount, lastError };
+        }
+
+        let scanResult = await scanForVideoEntries(currentAccessToken);
+        let { entries, videoCount } = scanResult;
+        let lastDropboxScanError = scanResult.lastError || null;
+
+        if (videoCount === 0) {
+          // Access token mungkin tersimpan tetapi sudah tidak valid.
+          const retryToken = await refreshDropboxAccessToken();
+          if (retryToken && retryToken !== currentAccessToken) {
+            console.warn("Tidak ditemukan video; mencoba ulang dengan access token baru.");
+            const retry = await scanForVideoEntries(retryToken);
+            lastDropboxScanError = retry.lastError || lastDropboxScanError;
+            if (retry.videoCount > 0) {
+              entries = retry.entries;
+              videoCount = retry.videoCount;
+              optimizedImageToken = retryToken;
+            }
+          }
+        }
+
+        if (videoCount === 0) {
+          throw new Error(
+            "Dropbox terhubung tetapi katalog video tidak terbaca. " +
+            (lastDropboxScanError && lastDropboxScanError.message ? lastDropboxScanError.message : "Folder AniDrive tidak dapat dibaca oleh akun Dropbox yang terhubung.")
+          );
+        }
+
+        console.log(`Dropbox: ${entries.length} item dipindai, ${videoCount} file video ditemukan.`);
+        statusMsg.innerText = `Dropbox: ${videoCount} file video ditemukan. Menyiapkan katalog…`;
+        statusMsg.classList.remove('hidden');
+
+        categoriesData = { 'ANIME': [], 'MOVIE': [], 'HENTAI': [], 'SEX': [] };
+
+        const files = entries.filter(e => e['.tag'] === 'file');
+        const animeMap = {};
+
+        files.forEach(file => {
+          const fullPath = file.path_display || file.path_lower || file.name || "";
+          const fullPathLower = fullPath.toLowerCase();
+
+          // Abaikan file logo/banner.
+          if (
+            fullPathLower.includes('baner') ||
+            fullPathLower.includes('banner') ||
+            fullPathLower.includes('/logo/') ||
+            fullPathLower.includes('logo aplikasi')
+          ) {
+            return;
+          }
+
+          const parts = fullPath.split('/').filter(Boolean);
+          const fileName = file.name || parts[parts.length - 1] || "";
+
+          if (!isVideoFile(fileName) && !isImageFile(fileName)) return;
+
+          const catKey = detectCategory(parts);
+          const animeTitle = detectAnimeTitle(parts, fileName);
+
+          // Normalisasi key supaya judul yang sama tidak dibuat menjadi beberapa card
+          // hanya karena perbedaan huruf besar/kecil.
+          const mapKey = catKey + "_" + animeTitle.toLowerCase();
+
+          if (!animeMap[mapKey]) {
+            animeMap[mapKey] = {
+              title: animeTitle,
+              category: catKey,
+              posterPath: null,
+              posterSharedLinkPath: null,
+              posterFileId: null,
+              posterFileName: "",
+              posterThumbPath: null,
+              posterThumbSharedUrl: DROPBOX_SHARED_LINK,
+              posterUrl: CATALOG_PLACEHOLDER,
+              videos: []
+            };
+          }
+
+          if (isImageFile(fileName)) {
+            // Jika ada beberapa gambar di folder anime, pilih yang namanya
+            // paling masuk akal sebagai poster terlebih dahulu.
+            const clean = getCleanName(fileName).toLowerCase();
+            const current = animeMap[mapKey].posterPath;
+
+            if (
+              !current ||
+              clean === "poster" ||
+              clean === "cover" ||
+              clean === animeTitle.toLowerCase()
+            ) {
+              animeMap[mapKey].posterPath = getDropboxFilePath(file);
+              animeMap[mapKey].posterSharedLinkPath = file._shared_link_path || getDropboxFilePath(file);
+              animeMap[mapKey].posterFileId = file.id || file.file_id || null;
+              animeMap[mapKey].posterFileName = getCleanName(fileName);
+              animeMap[mapKey].posterThumbPath = animeMap[mapKey].posterSharedLinkPath;
+              animeMap[mapKey].posterThumbSharedUrl = DROPBOX_SHARED_LINK;
+            }
+          } else if (isVideoFile(fileName)) {
+            animeMap[mapKey].videos.push({
+              path: getDropboxFilePath(file),
+              sharedLinkPath: file._shared_link_path || null,
+              name: getCleanName(fileName)
+            });
+          }
+        });
+
+        const animeList = Object.values(animeMap);
+
+        // Poster TIDAK ditunggu di fase sinkronisasi utama. Katalog ditampilkan
+        // dulu dengan placeholder, lalu cover diambil di belakang layar agar
+        // jumlah file besar tidak membuat halaman terasa macet.
+        animeList.forEach((anime) => {
+          anime.posterUrl = anime.posterSharedLinkPath ? getSharedLinkDirectUrl(anime.posterSharedLinkPath) : CATALOG_PLACEHOLDER;
+        });
+
+        animeList.forEach(anime => {
+          anime.videos.sort((a, b) =>
+            a.name.localeCompare(b.name, undefined, {
+              numeric: true,
+              sensitivity: 'base'
+            })
+          );
+
+          const episodes = anime.videos.map(v => ({
+            id: v.sharedLinkPath ? getSharedLinkDirectUrl(v.sharedLinkPath) : v.path,
+            sharedLinkPath: v.sharedLinkPath || null,
+            name: v.name,
+            thumbUrl: anime.posterUrl,
+            subUrl: null
+          }));
+
+          if (episodes.length > 0) {
+            categoriesData[anime.category].push({
+              title: anime.title,
+              category: anime.category,
+              modifiedTime: Date.now(),
+              posterUrl: anime.posterUrl,
+              posterFileId: anime.posterFileId || null,
+              posterPath: anime.posterPath || null,
+              posterSharedLinkPath: anime.posterSharedLinkPath || null,
+              posterThumbPath: anime.posterThumbPath || anime.posterSharedLinkPath || null,
+              posterThumbSharedUrl: anime.posterThumbSharedUrl || DROPBOX_SHARED_LINK,
+              episodes: episodes
+            });
+          }
+        });
+
+        // Urutkan judul agar hasil stabil.
+        MAIN_CATEGORIES.forEach(cat => {
+          categoriesData[cat].sort((a, b) =>
+            a.title.localeCompare(b.title, undefined, {
+              numeric: true,
+              sensitivity: 'base'
+            })
+          );
+        });
+
+        const totalTitles = MAIN_CATEGORIES.reduce(
+          (sum, cat) => sum + categoriesData[cat].length, 0
+        );
+        const totalVideos = MAIN_CATEGORIES.reduce(
+          (sum, cat) => sum + categoriesData[cat].reduce(
+            (n, item) => n + item.episodes.length, 0
+          ), 0
+        );
+
+        console.log(`AniDrive: ${totalTitles} judul, ${totalVideos} video berhasil dimuat.`);
+        console.log("AniDrive category counts:", Object.fromEntries(MAIN_CATEGORIES.map(cat => [cat, categoriesData[cat].length])));
+
+        renderContinueWatching();
+        switchCategory(activeCategory);
+        saveFastCatalogCache();
+        statusMsg.classList.add('hidden');
+
+        // Cover tidak lagi diambil satu-per-satu lewat API temporary link.
+        // URL shared-link langsung dipasang ke <img loading="lazy"> sehingga
+        // browser hanya meminta cover yang benar-benar terlihat.
+
+      } catch (err) {
+        console.warn("Gagal memindai Dropbox:", err);
+        const message = err && err.message ? err.message : "kesalahan tidak diketahui";
+        statusMsg.innerHTML = `<div class="max-w-2xl mx-auto text-center"><div class="font-bold text-red-400 mb-1">Sinkronisasi Dropbox gagal</div><div class="text-xs text-zinc-300 break-words">${escapeHtml(message)}</div><button onclick="initDropboxSync(true)" class="mt-3 px-4 py-2 rounded-lg bg-orange-500 text-white font-bold text-xs">Coba Lagi</button></div>`;
+        statusMsg.classList.remove('hidden');
+      }
+    }
+
+    function switchCategory(catName, options = {}) {
+      const previousCategory = activeCategory;
+      activeCategory = catName;
+
+      if (options.pushHistory && catName !== previousCategory) {
+        pushAniDriveHistory("home", catName);
+      }
+
+      MAIN_CATEGORIES.forEach(name => {
+        const tab = document.getElementById(`tab-${name}`);
+        if (tab) {
+          tab.className = name === catName 
+            ? "px-2.5 sm:px-4 py-0.5 sm:py-1.5 rounded-full text-[10px] sm:text-xs font-bold uppercase transition bg-[#f47521] text-white shadow-sm whitespace-nowrap"
+            : "px-2.5 sm:px-4 py-0.5 sm:py-1.5 rounded-full text-[10px] sm:text-xs font-bold uppercase transition bg-black/60 text-zinc-300 hover:bg-black/80 hover:text-white border border-zinc-800 whitespace-nowrap";
+        }
+      });
+
+      const formattedTitle = catName.charAt(0).toUpperCase() + catName.slice(1).toLowerCase();
+      document.getElementById('section-title').innerText = `Koleksi ${formattedTitle}`;
+      setupBannerSlider(catName);
+      applySorting();
+    }
+
+    async function getOptimizedDropboxImageUrlFromDirectUrl(directUrl, kind = "banner") {
+      // Branding banners are already authenticated Blob URLs. Keep them as-is.
+      // Never turn a failed branding lookup into an unrelated external image.
+      if (!directUrl) return "";
+      if (/^(blob:|data:)/i.test(String(directUrl))) return directUrl;
+      try {
+        const u = new URL(directUrl);
+        const path = u.searchParams.get("path");
+        if (!path) return "";
+        const blob = await getSharedLinkFileBlob(DROPBOX_LOGO_LINK, decodeURIComponent(path));
+        if (blob && blob.size && String(blob.type || "").startsWith("image/")) {
+          return URL.createObjectURL(blob);
+        }
+      } catch (e) {}
+      return "";
+    }
+
+    function setupBannerSlider(catName) {
+      if (bannerInterval) clearInterval(bannerInterval);
+      currentBannerIdx = 0;
+
+      const bannerImages = categoryBanners[catName] || [];
+      const container = document.getElementById('banner-slider-container');
+      const dotsContainer = document.getElementById('banner-dots');
+      container.innerHTML = '';
+      dotsContainer.innerHTML = '';
+
+      if (bannerImages.length > 0) {
+        bannerImages.forEach((imgUrl, i) => {
+          const slide = document.createElement('div');
+          slide.id = `slide-${i}`;
+          slide.className = `banner-slide absolute inset-0 w-full h-full ${i === 0 ? 'opacity-100 z-10' : 'opacity-0 z-0'}`;
+          slide.style.backgroundColor = '#111827';
+          slide.dataset.bannerUrl = imgUrl;
+          container.appendChild(slide);
+          // imgUrl sudah merupakan URL gambar yang berhasil di-resolve dari Dropbox.
+          // Jangan diproses ulang melalui DROPBOX_LOGO_LINK karena URL tersebut bisa
+          // berasal dari shared-link lain dan membuat banner kembali gagal tampil.
+          if (imgUrl) {
+            slide.style.backgroundImage = `url("${String(imgUrl).replace(/"/g, '\\"')}")`;
+          }
+
+          if (bannerImages.length > 1) {
+            const dot = document.createElement('button');
+            dot.className = `h-1.5 sm:h-2 rounded-full transition-all duration-300 ${i === 0 ? 'w-4 sm:w-6 bg-[#f47521]' : 'w-1.5 sm:w-2 bg-white/40'}`;
+            dot.onclick = () => goToBanner(i, bannerImages);
+            dotsContainer.appendChild(dot);
+          }
+        });
+
+        if (bannerImages.length > 1) {
+          bannerInterval = setInterval(() => nextBanner(), 5000);
+        }
+      }
+
+      const items = categoriesData[catName] || [];
+      document.getElementById('hero-category').innerText = activeCategory;
+      document.getElementById('hero-title').innerText = `Koleksi ${activeCategory}`;
+      document.getElementById('hero-desc').innerText = `Total ${items.length} judul tayangan video dari server Dropbox AniDrive.`;
+      
+      if (items.length > 0) {
+        document.getElementById('hero-actions').innerHTML = `
+          <button onclick="openCrunchyrollWebDetail(0)" class="flex items-center gap-1.5 sm:gap-2 bg-[#f47521] hover:bg-[#ff8533] text-white font-extrabold px-4 sm:px-6 py-1.5 sm:py-2 rounded-xl font-semibold transition shadow-lg text-[11px] sm:text-xs tracking-wider uppercase">
+            <i data-lucide="play" class="w-3.5 h-3.5 sm:w-4 sm:h-4 fill-current"></i> Lihat & Putar
+          </button>
+        `;
+      } else {
+        document.getElementById('hero-actions').innerHTML = '';
+      }
+
+      lucide.createIcons();
+    }
+
+    function goToBanner(idx, images) {
+      const total = images.length;
+      if (total <= 1) return;
+
+      const prevSlide = document.getElementById(`slide-${currentBannerIdx}`);
+      const nextSlide = document.getElementById(`slide-${idx}`);
+      const dots = document.getElementById('banner-dots').children;
+
+      if (prevSlide && nextSlide) {
+        prevSlide.className = "banner-slide absolute inset-0 w-full h-full opacity-0 z-0";
+        nextSlide.className = "banner-slide absolute inset-0 w-full h-full opacity-100 z-10";
+      }
+
+      if (dots.length > idx) {
+        for (let i = 0; i < dots.length; i++) {
+          dots[i].className = (i === idx) ? "h-1.5 sm:h-2 w-4 sm:w-6 rounded-full bg-[#f47521] transition-all duration-300" : "h-1.5 sm:h-2 w-1.5 sm:w-2 rounded-full bg-white/40 transition-all duration-300";
+        }
+      }
+
+      currentBannerIdx = idx;
+    }
+
+    function nextBanner() {
+      const images = categoryBanners[activeCategory] || [];
+      if (!images || images.length <= 1) return;
+      const nextIdx = (currentBannerIdx + 1) % images.length;
+      goToBanner(nextIdx, images);
+    }
+
+    function prevBanner() {
+      const images = categoryBanners[activeCategory] || [];
+      if (!images || images.length <= 1) return;
+      const prevIdx = (currentBannerIdx - 1 + images.length) % images.length;
+      goToBanner(prevIdx, images);
+    }
+
+    function applySorting() {
+      const sortType = document.getElementById('sort-select').value;
+      let items = [...(categoriesData[activeCategory] || [])];
+      const viewCounts = cloudDatabase.view_counts || {};
+
+      if (sortType === 'popular') {
+        items.sort((a, b) => (viewCounts[b.title] || 0) - (viewCounts[a.title] || 0));
+      } else if (sortType === 'newest') {
+        items.sort((a, b) => b.modifiedTime - a.modifiedTime);
+      } else if (sortType === 'oldest') {
+        items.sort((a, b) => a.modifiedTime - b.modifiedTime);
+      } else if (sortType === 'title_asc') {
+        items.sort((a, b) => a.title.localeCompare(b.title, undefined, { numeric: true, sensitivity: 'base' }));
+      } else if (sortType === 'title_desc') {
+        items.sort((a, b) => b.title.localeCompare(a.title, undefined, { numeric: true, sensitivity: 'base' }));
+      }
+
+      currentSortedList = items;
+      document.getElementById('item-count').innerText = `${items.length} Judul`;
+      document.getElementById('status-msg').classList.add('hidden');
+
+      const grid = document.getElementById('catalog-grid');
+      const popularCarousel = document.getElementById('popular-carousel');
+      grid.innerHTML = '';
+      popularCarousel.innerHTML = '';
+
+      if (items.length === 0) {
+        grid.innerHTML = `<div class="col-span-full py-10 text-center text-zinc-500 text-xs">Belum ada video pada kategori ${activeCategory}.</div>`;
+        document.getElementById('popular-section').classList.add('hidden');
+        return;
+      }
+
+      document.getElementById('popular-section').classList.remove('hidden');
+
+      items.forEach((item, index) => {
+        const card = document.createElement('div');
+        card.className = "group relative cursor-pointer rounded-md overflow-hidden bg-black/50 transition duration-300 hover:scale-105 hover:z-20 shadow-lg border border-zinc-800/80 backdrop-blur-sm";
+        card.onclick = () => openCrunchyrollWebDetail(index);
+        card.innerHTML = `
+          <div class="aspect-[2/3] w-full bg-zinc-950 overflow-hidden">
+            <img src="${CATALOG_PLACEHOLDER}" data-dropbox-image-path="${item.posterThumbPath || ''}" data-dropbox-file-id="${item.posterFileId || ''}" data-dropbox-shared-url="${item.posterThumbSharedUrl || DROPBOX_SHARED_LINK}" data-image-kind="poster" alt="${item.title}" class="w-full h-full object-cover group-hover:scale-105 transition duration-500" loading="lazy" decoding="async" fetchpriority="low">
+          </div>
+          <div class="p-2 sm:p-2.5">
+            <h3 class="font-semibold text-xs truncate group-hover:text-orange-400 transition">${item.title}</h3>
+            <span class="text-[10px] text-zinc-400">${item.episodes.length} Video</span>
+          </div>
+        `;
+        grid.appendChild(card);
+
+        popularCarousel.appendChild(createAnimeCard(item, index));
+      });
+
+      lucide.createIcons();
+      hydrateOptimizedImages();
+    }
+
+    function openCrunchyrollWebDetail(index, options = {}) {
+      const item = currentSortedList[index];
+      if (!item) return;
+
+      currentActiveDetailItem = item;
+
+      if (options.pushHistory !== false) {
+        pushAniDriveHistory("detail", item.category || activeCategory, { title: item.title });
+      }
+
+      const desktopBanner = document.getElementById('web-detail-banner');
+      const desktopTitle = document.getElementById('web-detail-title');
+      const desktopDesc = document.getElementById('web-detail-desc');
+      if (desktopBanner) {
+        desktopBanner.src = item.posterUrl;
+        if (item.posterThumbPath) getOptimizedDropboxImageUrl(item.posterThumbPath, item.posterThumbSharedUrl || DROPBOX_SHARED_LINK, "banner").then(url => { if (url) desktopBanner.src = url; });
+      }
+      if (desktopTitle) desktopTitle.innerText = item.title;
+      if (desktopDesc) desktopDesc.innerText = `Kisah perjalanan dan petualangan epik dari serial anime ${item.title}. Nikmati seluruh ${item.episodes.length} episode pilihan dalam kualitas 4K murni dari Dropbox.`;
+
+      const isBookmarked = (cloudDatabase.watchlist || []).some(w => w.title === item.title);
+      const bookmarkBtn = document.getElementById('web-detail-bookmark-btn');
+      if (bookmarkBtn) {
+        bookmarkBtn.className = isBookmarked 
+          ? "p-2.5 bg-[#f47521] text-white rounded-xl border border-[#f47521] transition shadow-lg" 
+          : "p-2.5 bg-black/70 hover:bg-zinc-800 border border-white/20 rounded-xl text-white transition backdrop-blur-md";
+      }
+
+      const startE1 = () => {
+        if (item.episodes.length > 0) {
+          openPlayer(item.episodes[0].id, `${item.title} - ${item.episodes[0].name}`, item.episodes[0].subUrl, 0, {
+            animeTitle: item.title,
+            epName: item.episodes[0].name,
+            posterUrl: item.posterUrl,
+            sharedLinkPath: item.episodes[0].sharedLinkPath || null
+          });
+        }
+      };
+      
+      const desktopPlayBtn = document.getElementById('web-detail-play-btn');
+      if (desktopPlayBtn) desktopPlayBtn.onclick = startE1;
+
+      const epContainer = document.getElementById('web-episodes-grid');
+      if(epContainer) epContainer.innerHTML = '';
+
+      item.episodes.forEach((ep, idx) => {
+        const rowCard = document.createElement('div');
+        rowCard.className = "flex items-center justify-between p-3 rounded-xl bg-black/40 border border-zinc-800/80 cursor-pointer hover:border-[#f47521]/50 transition group";
+        rowCard.onclick = () => {
+          openPlayer(ep.id, `${item.title} - ${ep.name}`, ep.subUrl, 0, {
+            animeTitle: item.title,
+            epName: ep.name,
+            posterUrl: item.posterUrl,
+            sharedLinkPath: item.episodes[0].sharedLinkPath || null
+          });
+        };
+        rowCard.innerHTML = `
+          <div class="flex items-center gap-3.5 min-w-0 pr-2">
+            <div class="relative w-32 sm:w-40 aspect-video rounded-lg overflow-hidden bg-zinc-950 flex-shrink-0 border border-zinc-800">
+              <video data-episode-video6="1" class="absolute inset-0 w-full h-full object-cover" muted playsinline preload="none"></video>
+              <div class="absolute inset-0 flex items-center justify-center">
+                <div class="w-7 h-7 rounded-full bg-black/60 flex items-center justify-center shadow">
+                  <i data-lucide="play" class="w-3.5 h-3.5 fill-current text-white translate-x-0.5"></i>
+                </div>
+              </div>
+              <span class="absolute bottom-1 right-1 bg-black/85 text-[9px] font-bold px-1.5 py-0.5 rounded text-zinc-200">25m</span>
+            </div>
+            <div class="min-w-0 space-y-0.5">
+              <h4 class="font-bold text-xs sm:text-sm text-zinc-100 group-hover:text-[#f47521] transition truncate">${ep.name}</h4>
+              <p class="text-[10px] text-zinc-400">Tonton episode ${idx + 1}</p>
+            </div>
+          </div>
+          <div class="flex items-center gap-3 flex-shrink-0">
+            <button onclick="event.stopPropagation(); triggerDownload('${ep.id}', '${item.title} - ${ep.name}.mkv')" class="p-2 rounded-full hover:bg-zinc-800 text-zinc-400 hover:text-white transition" title="Unduh">
+              <i data-lucide="download" class="w-4 h-4"></i>
+            </button>
+            <button class="p-2 rounded-full hover:bg-zinc-800 text-zinc-400 hover:text-white transition">
+              <i data-lucide="more-vertical" class="w-4 h-4"></i>
+            </button>
+          </div>
+        `;
+        epContainer.appendChild(rowCard);
+
+        const episodeVideo6 = rowCard.querySelector('[data-episode-video6]');
+        if (episodeVideo6) {
+          const startVideoFrameJob = () => {
+            loadEpisodeVideoFrame6(episodeVideo6, ep.id);
+          };
+
+          if ('IntersectionObserver' in window) {
+            if (!window.__aniDriveEpisodeVideoObserver) {
+              window.__aniDriveEpisodeVideoObserver = new IntersectionObserver((entries, observer) => {
+                entries.forEach(entry => {
+                  if (entry.isIntersecting) {
+                    const video = entry.target;
+                    const path = video.dataset.episodePath || "";
+                    loadEpisodeVideoFrame6(video, { id: path, sharedLinkPath: video.dataset.episodeSharedPath, name: video.dataset.episodeName });
+                    observer.unobserve(video);
+                  }
+                });
+              }, { rootMargin: '600px 0px' });
+            }
+
+            episodeVideo6.dataset.episodePath = ep.id;
+            episodeVideo6.dataset.episodeSharedPath = ep.sharedLinkPath || "";
+            episodeVideo6.dataset.episodeName = ep.name || "Episode";
+            window.__aniDriveEpisodeVideoObserver.observe(episodeVideo6);
+          } else {
+            loadEpisodeVideoFrame6(episodeVideo6, ep);
+          }
+        }
+      });
+
+      const detailView = document.getElementById('crunchyroll-web-detail');
+      detailView.classList.remove('hidden');
+      detailView.classList.add('flex');
+      detailView.scrollTo({ top: 0, behavior: 'smooth' });
+
+      lucide.createIcons();
+    }
+
+    function closeCrunchyrollWebDetail() {
+      document.getElementById('crunchyroll-web-detail').classList.add('hidden');
+      document.getElementById('crunchyroll-web-detail').classList.remove('flex');
+      currentActiveDetailItem = null;
+    }
+
+    function toggleWebDesc() {
+      const desc = document.getElementById('web-detail-desc');
+      const btn = document.getElementById('btn-web-more-desc');
+      if (desc && btn) {
+        if (desc.classList.contains('line-clamp-2')) {
+          desc.classList.remove('line-clamp-2');
+          btn.innerText = 'Tutup Detail';
+        } else {
+          desc.classList.add('line-clamp-2');
+          btn.innerText = 'Detail Lainnya';
+        }
+      }
+    }
+
+    function togglePlayerDesc() {
+      const desc = document.getElementById('player-episode-desc');
+      const btn = document.getElementById('btn-player-desc');
+      if (desc && btn) {
+        if (desc.classList.contains('line-clamp-3')) {
+          desc.classList.remove('line-clamp-3');
+          btn.innerText = 'Tutup';
+        } else {
+          desc.classList.add('line-clamp-3');
+          btn.innerText = 'Baca Lainnya';
+        }
+      }
+    }
+
+    // =========================================================
+    // KOMPATIBILITAS MKV/HEVC DI CHROME — FFmpeg.wasm 0.12
+    //
+    // V3 memakai API FFmpeg.wasm modern + toBlobURL. Ini penting untuk
+    // halaman HTML lokal karena core/wasm/worker diambil sebagai Blob URL,
+    // sehingga tidak langsung bergantung pada origin CDN.
+    // =========================================================
+    let aniDriveFFmpeg = null;
+    let aniDriveFFmpegLoadPromise = null;
+    let aniDriveConvertedUrl = "";
+    let aniDriveTranscodeBusy = false;
+    let videoElementForConversionTarget = null;
+
+    async function loadAniDriveFFmpeg() {
+      if (aniDriveFFmpeg && aniDriveFFmpeg.loaded) return aniDriveFFmpeg;
+      if (aniDriveFFmpegLoadPromise) return aniDriveFFmpegLoadPromise;
+
+      aniDriveFFmpegLoadPromise = (async () => {
+        // Load the modern FFmpeg.wasm wrapper only once.
+        if (!window.FFmpeg || !window.FFmpeg.FFmpeg) {
+          const s = document.createElement("script");
+          s.id = "anidrive-ffmpeg-v12-script";
+          s.src = "https://cdn.jsdelivr.net/npm/@ffmpeg/ffmpeg@0.12.10/dist/umd/ffmpeg.min.js";
+          await new Promise((resolve, reject) => {
+            s.onload = resolve;
+            s.onerror = () => reject(new Error("Gagal memuat FFmpeg.wasm 0.12 dari CDN."));
+            document.head.appendChild(s);
+          });
+        }
+
+        if (!window.FFmpeg || !window.FFmpeg.FFmpeg) {
+          throw new Error("FFmpeg.wasm 0.12 tidak tersedia di browser.");
+        }
+
+        const ffmpeg = new window.FFmpeg.FFmpeg();
+        ffmpeg.on("log", ({ message }) => console.log("[AniDrive FFmpeg]", message));
+        ffmpeg.on("progress", ({ progress }) => {
+          if (Number.isFinite(progress)) {
+            console.log("[AniDrive FFmpeg] progress:", Math.round(progress * 100) + "%");
+          }
+        });
+
+        // toBlobURL is provided by @ffmpeg/util. Load it as UMD as well.
+        if (!window.FFmpegUtil || !window.FFmpegUtil.toBlobURL) {
+          const u = document.createElement("script");
+          u.id = "anidrive-ffmpeg-util-script";
+          u.src = "https://cdn.jsdelivr.net/npm/@ffmpeg/util@0.12.1/dist/umd/index.js";
+          await new Promise((resolve, reject) => {
+            u.onload = resolve;
+            u.onerror = () => reject(new Error("Gagal memuat @ffmpeg/util."));
+            document.head.appendChild(u);
+          });
+        }
+
+        if (!window.FFmpegUtil || !window.FFmpegUtil.toBlobURL) {
+          throw new Error("FFmpeg util tidak tersedia di browser.");
+        }
+
+        const baseURL = "https://cdn.jsdelivr.net/npm/@ffmpeg/core@0.12.10/dist/umd";
+        const toBlobURL = window.FFmpegUtil.toBlobURL;
+
+        // Convert CDN resources to local Blob URLs. This also bypasses
+        // the cross-origin worker/core loading issue documented by FFmpeg.wasm.
+        const coreURL = await toBlobURL(
+          `${baseURL}/ffmpeg-core.js`,
+          "text/javascript"
+        );
+        const wasmURL = await toBlobURL(
+          `${baseURL}/ffmpeg-core.wasm`,
+          "application/wasm"
+        );
+
+        await ffmpeg.load({ coreURL, wasmURL });
+
+        aniDriveFFmpeg = ffmpeg;
+        return ffmpeg;
+      })().catch(err => {
+        aniDriveFFmpegLoadPromise = null;
+        throw err;
+      });
+
+      return aniDriveFFmpegLoadPromise;
+    }
+
+    async function getVideoBlobForBrowserConversion(directUrl, currentEp, filePathOrUrl) {
+      const token = await getDropboxAccessToken();
+
+      if (currentEp && currentEp.sharedLinkPath) {
+        const blob = await getSharedLinkFileBlob(
+          currentEp.sharedLinkUrl || DROPBOX_SHARED_LINK,
+          currentEp.sharedLinkPath
+        );
+        if (blob && blob.size) return blob;
+      }
+
+      if (typeof filePathOrUrl === "string" && filePathOrUrl.startsWith("/")) {
+        const res = await fetch("https://content.dropboxapi.com/2/files/download", {
+          method: "POST",
+          headers: {
+            "Authorization": `Bearer ${token}`,
+            "Dropbox-API-Arg": JSON.stringify({ path: filePathOrUrl })
+          }
+        });
+        if (!res.ok) {
+          throw new Error(`Dropbox download gagal (${res.status}).`);
+        }
+        const blob = await res.blob();
+        if (blob.size) return blob;
+      }
+
+      const res = await fetch(directUrl);
+      if (!res.ok) throw new Error(`Gagal mengunduh video (${res.status}).`);
+      return await res.blob();
+    }
+
+    async function convertCurrentVideoForChrome(directUrl, currentEp, filePathOrUrl, title) {
+      if (aniDriveTranscodeBusy) return;
+      aniDriveTranscodeBusy = true;
+
+      try {
+        showSyncToast(
+          "Menyiapkan video",
+          "Chrome tidak mendukung format asli. Menyiapkan konversi MP4 H.264/AAC di browser...",
+          false
+        );
+
+        const ffmpeg = await loadAniDriveFFmpeg();
+        const inputBlob = await getVideoBlobForBrowserConversion(
+          directUrl, currentEp, filePathOrUrl
+        );
+
+        if (!inputBlob || !inputBlob.size) {
+          throw new Error("File video dari Dropbox kosong.");
+        }
+
+        // FFmpeg.wasm uses browser memory; very large files can still be
+        // expensive, but do not impose an arbitrary 1 GB correctness limit.
+        console.log("AniDrive FFmpeg input size:", inputBlob.size, "bytes");
+
+        // Use the original extension only as an input label. FFmpeg probes
+        // the actual container/codec.
+        const inputName = "anidrive-input.mkv";
+        const outputName = "anidrive-output.mp4";
+
+        try { await ffmpeg.deleteFile(inputName); } catch (_) {}
+        try { await ffmpeg.deleteFile(outputName); } catch (_) {}
+
+        const inputData = new Uint8Array(await inputBlob.arrayBuffer());
+        await ffmpeg.writeFile(inputName, inputData);
+
+        // Fast path: container remux only.
+        let remuxOK = false;
+        try {
+          await ffmpeg.exec([
+            "-i", inputName,
+            "-map", "0:v:0",
+            "-map", "0:a?",
+            "-c", "copy",
+            "-movflags", "+faststart",
+            outputName
+          ]);
+          remuxOK = true;
+        } catch (e) {
+          console.warn("Remux MKV -> MP4 gagal; beralih ke H.264/AAC encode.", e);
+        }
+
+        // Codec fallback. H.264/AAC is the compatibility target.
+        if (!remuxOK) {
+          await ffmpeg.exec([
+            "-i", inputName,
+            "-map", "0:v:0",
+            "-map", "0:a?",
+            "-c:v", "libx264",
+            "-preset", "ultrafast",
+            "-crf", "28",
+            "-pix_fmt", "yuv420p",
+            "-c:a", "aac",
+            "-b:a", "128k",
+            "-movflags", "+faststart",
+            outputName
+          ]);
+        }
+
+        const output = await ffmpeg.readFile(outputName);
+        if (!output || !output.length) {
+          throw new Error("FFmpeg tidak menghasilkan MP4.");
+        }
+
+        if (aniDriveConvertedUrl) {
+          URL.revokeObjectURL(aniDriveConvertedUrl);
+        }
+
+        aniDriveConvertedUrl = URL.createObjectURL(
+          new Blob([output.buffer], { type: "video/mp4" })
+        );
+
+        if (!videoElementForConversionTarget) {
+          throw new Error("Elemen video AniDrive sudah ditutup.");
+        }
+
+        videoElementForConversionTarget.onerror = null;
+        videoElementForConversionTarget.src = aniDriveConvertedUrl;
+        videoElementForConversionTarget.load();
+
+        try {
+          await videoElementForConversionTarget.play();
+        } catch (_) {}
+
+        showSyncToast(
+          "Video siap diputar",
+          "Video sudah diproses menjadi MP4 H.264/AAC dan tetap diputar di AniDrive.",
+          false
+        );
+
+        try { await ffmpeg.deleteFile(inputName); } catch (_) {}
+        try { await ffmpeg.deleteFile(outputName); } catch (_) {}
+
+      } catch (e) {
+        console.error("FFmpeg.wasm V3 gagal:", e);
+        showSyncToast(
+          "Konversi browser gagal",
+          e && e.message ? e.message : "FFmpeg.wasm gagal memproses video.",
+          true
+        );
+      } finally {
+        aniDriveTranscodeBusy = false;
+      }
+    }
+
+    function buildDropboxPreviewUrl(relativePath) {
+      if (!relativePath) return "";
+      try {
+        const u = new URL(DROPBOX_SHARED_LINK);
+        u.searchParams.set("preview", String(relativePath).replace(/^\/+/, ""));
+        u.searchParams.set("dl", "0");
+        return u.toString();
+      } catch (_) { return ""; }
+    }
+
+    function showDropboxPreviewFallback(relativePath) {
+      const frame = document.getElementById("dropbox-preview-fallback");
+      const video = document.getElementById("native-video-player");
+      const url = buildDropboxPreviewUrl(relativePath);
+      if (!frame || !url) return false;
+      video.style.display = "none";
+      frame.style.display = "block";
+      frame.src = url;
+      return true;
+    }
+
+    // ==========================================
+    // PEMUTAR VIDEO ON-DEMAND DARI DROPBOX
+    // ==========================================
+    async function openPlayer(filePathOrUrl, title, subUrl, startTime = 0, metaInfo = null) {
+      if (!filePathOrUrl) return;
+      currentPlayingFileId = filePathOrUrl;
+
+      if (!window.__aniDriveRestoringHistory) {
+        pushAniDriveHistory("player", currentActiveDetailItem?.category || activeCategory, {
+          title: currentActiveDetailItem?.title || (metaInfo?.animeTitle || title.split(" - ")[0] || title),
+          episode: metaInfo?.epName || title.split(" - ")[1] || "Episode"
+        });
+      }
+
+      currentPlayingInfo = metaInfo || {
+        animeTitle: title.split(' - ')[0] || title,
+        epName: title.split(' - ')[1] || 'Episode',
+        posterUrl: `data:image/svg+xml;charset=UTF-8,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 600 900'%3E%3Crect width='600' height='900' fill='%23111b2d'/%3E%3Ctext x='50%25' y='48%25' fill='%23f47521' font-size='64' font-family='Arial' font-weight='700' text-anchor='middle'%3EAniDrive%3C/text%3E%3Ctext x='50%25' y='56%25' fill='%2394a3b8' font-size='28' font-family='Arial' text-anchor='middle'%3EPoster%3C/text%3E%3C/svg%3E`
+      };
+
+      recordView(currentPlayingInfo.animeTitle);
+      
+      document.getElementById('player-anime-parent').innerText = currentPlayingInfo.animeTitle;
+      document.getElementById('player-title').innerText = currentPlayingInfo.epName;
+      document.getElementById('player-episode-desc').innerText = `Tonton episode lengkap ${currentPlayingInfo.epName} dari serial ${currentPlayingInfo.animeTitle}. Kualitas video jernih dari server Dropbox.`;
+
+      setupNextEpisodeCard();
+
+      document.getElementById('player-screen').classList.remove('hidden');
+      document.getElementById('player-screen').classList.add('flex');
+      document.getElementById('player-screen').scrollTo({ top: 0, behavior: 'smooth' });
+
+      const videoElement = document.getElementById('native-video-player');
+      const dropboxFallback = document.getElementById('dropbox-preview-fallback');
+      if (dropboxFallback) { dropboxFallback.style.display = 'none'; dropboxFallback.src = ''; }
+      videoElement.style.display = 'block';
+
+      if (jassubInstance) {
+        jassubInstance.destroy();
+        jassubInstance = null;
+      }
+
+      let directStreamUrl = "";
+      let currentEp = null;
+
+      if (currentActiveDetailItem && currentActiveDetailItem.episodes) {
+        currentEp = currentActiveDetailItem.episodes.find(e => e.id === filePathOrUrl);
+      }
+
+      try {
+        if (currentEp && currentEp.sharedLinkPath) {
+          // Gunakan temporary link dari path akun terlebih dahulu. Jangan fetch
+          // Blob: <video> perlu URL HTTP normal agar Range/seek tetap berfungsi.
+          directStreamUrl = await getAniDrivePlayableUrl(currentEp);
+        } else if (filePathOrUrl.startsWith("http")) {
+          directStreamUrl = filePathOrUrl;
+        } else if (filePathOrUrl.startsWith("/")) {
+          directStreamUrl = await getDropboxTemporaryLink(filePathOrUrl);
+        }
+      } catch (mediaErr) {
+        console.warn("Gagal mengambil media Dropbox:", mediaErr);
+        showSyncToast(
+          "Video gagal dimuat",
+          mediaErr.message || "Tidak dapat mengambil file dari Dropbox.",
+          true
+        );
+      }
+
+      videoElement.removeAttribute("src");
+      videoElement.load();
+      if (directStreamUrl) {
+        videoElement.src = directStreamUrl;
+        videoElement.load();
+      }
+
+      videoElement.ontimeupdate = () => {
+        if (currentPlayingInfo && videoElement.duration) {
+          saveProgress(
+            currentPlayingInfo.animeTitle,
+            currentPlayingInfo.epName,
+            currentPlayingFileId,
+            subUrl,
+            currentPlayingInfo.posterUrl,
+            videoElement.currentTime,
+            videoElement.duration
+          );
+        }
+      };
+
+      if (startTime > 0) {
+        videoElement.onloadedmetadata = () => {
+          videoElement.currentTime = startTime;
+        };
+      }
+
+      if (subUrl) {
+        try {
+          await ensureJassubLoaded();
+          jassubInstance = new JASSUB({
+            video: videoElement,
+            subUrl: subUrl,
+            workerUrl: 'https://cdn.jsdelivr.net/npm/jassub/dist/jassub-worker.js',
+            wasmUrl: 'https://cdn.jsdelivr.net/npm/jassub/dist/jassub-worker.wasm'
+          });
+        } catch (e) {
+          console.warn('Subtitle tidak dapat diaktifkan:', e);
+        }
+      }
+
+      videoElementForConversionTarget = videoElement;
+
+      let retriedAuthenticatedStream = false;
+      videoElement.onerror = async () => {
+        const mediaError = videoElement.error;
+
+        // If the shared-folder raw URL was rejected, retry once using Dropbox's
+        // authenticated temporary link. This fixes URL/Range issues without
+        // downloading or transcoding the entire video.
+        if (!retriedAuthenticatedStream && currentEp?.sharedLinkPath) {
+          retriedAuthenticatedStream = true;
+          try {
+            const retryUrl = await getAniDrivePlayableUrl(currentEp);
+            if (retryUrl && retryUrl !== directStreamUrl) {
+              directStreamUrl = retryUrl;
+              videoElement.src = retryUrl;
+              videoElement.load();
+              try { await videoElement.play(); } catch (_) {}
+              return;
+            }
+          } catch (retryErr) {
+            console.warn("Retry authenticated Dropbox stream gagal:", retryErr);
+          }
+        }
+
+        let detail = "Browser gagal membaca stream video dari Dropbox.";
+        if (mediaError && mediaError.code === 4) {
+          detail = "Dropbox mengirim file, tetapi stream yang dipakai AniDrive tidak dapat dibaca Chrome.";
+        }
+        // Dropbox's own web viewer can play/transcode files that Chrome cannot
+        // decode directly (for example HEVC). Use the same shared-folder preview
+        // as a reliable fallback instead of forcing an FFmpeg download.
+        if (currentEp?.sharedLinkPath && showDropboxPreviewFallback(currentEp.sharedLinkPath)) {
+          showSyncToast("Menggunakan pemutar Dropbox", "Chrome tidak dapat membaca codec asli; video dialihkan ke pemutar Dropbox.");
+          return;
+        }
+        showSyncToast("Video tidak dapat diputar", detail, true);
+      };
+
+      videoElement.play().catch(() => {});
+      lucide.createIcons();
+    }
+
+    function setupNextEpisodeCard() {
+      if (!currentActiveDetailItem || !currentActiveDetailItem.episodes) return;
+      const currentIdx = currentActiveDetailItem.episodes.findIndex(e => e.id === currentPlayingFileId);
+      const nextEp = currentActiveDetailItem.episodes[currentIdx + 1];
+      
+      const card = document.getElementById('next-episode-card');
+      if (nextEp) {
+        card.classList.remove('hidden');
+        const nextEpisodeThumb = document.getElementById('next-ep-thumb');
+        // Next episode thumbnail is also the actual frame from 06:00, never the cover.
+        if (nextEpisodeThumb) nextEpisodeThumb.src = "";
+        const nextEpisodeVideo = document.getElementById('next-ep-video6');
+        if (nextEpisodeVideo) {
+          loadEpisodeVideoFrame6(nextEpisodeVideo, nextEp);
+        }
+        document.getElementById('next-ep-title').innerText = nextEp.name;
+        card.onclick = () => {
+          openPlayer(nextEp.id, `${currentActiveDetailItem.title} - ${nextEp.name}`, nextEp.subUrl, 0, {
+            animeTitle: currentActiveDetailItem.title,
+            epName: nextEp.name,
+            posterUrl: currentActiveDetailItem.posterUrl,
+            sharedLinkPath: nextEp.sharedLinkPath || null
+          });
+        };
+      } else {
+        card.classList.add('hidden');
+      }
+    }
+
+    async function downloadNextEpisode() {
+      if (!currentActiveDetailItem || !currentActiveDetailItem.episodes) return;
+      const currentIdx = currentActiveDetailItem.episodes.findIndex(e => e.id === currentPlayingFileId);
+      const nextEp = currentActiveDetailItem.episodes[currentIdx + 1];
+      if (nextEp) {
+        let streamUrl = nextEp.id;
+        if (nextEp.id.startsWith("/")) {
+          streamUrl = await getDropboxTemporaryLink(nextEp.id);
+        }
+        triggerDownload(streamUrl || nextEp.id, `${currentActiveDetailItem.title} - ${nextEp.name}.mkv`);
+      }
+    }
+
+    async function requestAISubtitle() {
+      const btn = document.getElementById('btn-auto-sub');
+      const selectedLang = document.getElementById('audio-lang') ? document.getElementById('audio-lang').value : 'id';
+      if (!currentPlayingFileId) return;
+
+      btn.innerHTML = `<i data-lucide="loader-2" class="w-3.5 h-3.5 animate-spin"></i> <span>Menerjemahkan...</span>`;
+      btn.disabled = true;
+      lucide.createIcons();
+
+      try {
+        const response = await fetch(`${AI_BACKEND_URL}/generate-sub?file_url=${encodeURIComponent(currentPlayingFileId)}&api_key=${API_KEY}&lang=${selectedLang}`);
+        const data = await response.json();
+
+        if (data.status === "success" && data.vtt) {
+          const blob = new Blob([data.vtt], { type: 'text/vtt' });
+          const subUrl = URL.createObjectURL(blob);
+          const videoElement = document.getElementById('native-video-player');
+
+          if (jassubInstance) {
+            jassubInstance.destroy();
+            jassubInstance = null;
+          }
+
+          await ensureJassubLoaded();
+          jassubInstance = new JASSUB({
+            video: videoElement,
+            subUrl: subUrl,
+            workerUrl: 'https://cdn.jsdelivr.net/npm/jassub/dist/jassub-worker.js',
+            wasmUrl: 'https://cdn.jsdelivr.net/npm/jassub/dist/jassub-worker.wasm'
+          });
+
+          btn.className = "bg-emerald-600 text-xs font-semibold px-3 py-1.5 rounded-full flex items-center gap-1 transition text-white shadow-md";
+          btn.innerHTML = `<i data-lucide="check" class="w-3.5 h-3.5"></i> <span>Takarir Siap!</span>`;
+        } else {
+          throw new Error(data.detail || "Gagal memproses takarir.");
+        }
+      } catch (err) {
+        alert("Gagal memproses subtitle otomatis. Pastikan link Cloudflare Colab masih aktif.");
+        btn.className = "bg-red-600 hover:bg-red-700 text-xs font-semibold px-3 py-1.5 rounded-full flex items-center gap-1 transition text-white shadow-md";
+        btn.innerHTML = `<i data-lucide="sparkles" class="w-3.5 h-3.5"></i> <span>Buat Takarir AI</span>`;
+      } finally {
+        btn.disabled = false;
+        lucide.createIcons();
+      }
+    }
+
+    function closePlayer() {
+      if (jassubInstance) {
+        jassubInstance.destroy();
+        jassubInstance = null;
+      }
+      const videoElement = document.getElementById('native-video-player');
+      videoElement.pause();
+      videoElement.src = '';
+      videoElement.style.display = 'block';
+      const dropboxFallback = document.getElementById('dropbox-preview-fallback');
+      if (dropboxFallback) { dropboxFallback.src = ''; dropboxFallback.style.display = 'none'; }
+      
+      currentPlayingFileId = "";
+      currentPlayingInfo = null;
+
+      document.getElementById('player-screen').classList.add('hidden');
+      document.getElementById('player-screen').classList.remove('flex');
+      renderContinueWatching();
+    }
+
+    // Buat satu titik history milik AniDrive. Dengan begitu Back pertama
+    // setelah pindah kanal/detail/player tetap berada di dalam web.
+    try {
+      const current = history.state;
+      if (!current || current.anidrive !== true) {
+        history.replaceState(
+          { anidrive: true, view: "home", category: activeCategory },
+          "",
+          location.pathname + "#anidrive-home=" + encodeURIComponent(activeCategory)
+        );
+      }
+    } catch (_) {}
+
+    // Startup AniDrive: pulihkan sesi Dropbox otomatis.
+    // Dibungkus async IIFE karena script ini adalah classic script.
+    // `await` di top-level classic script akan membuat SELURUH JavaScript
+    // gagal diparse, sehingga semua tombol onclick ikut tidak bekerja.
+    (async function startupAniDrive() {
+      try {
+        if (typeof loadInitialCache === "function") loadInitialCache();
+
+        let startupToken = localStorage.getItem(DROPBOX_TOKEN_KEY) || "";
+        const startupRefreshToken = localStorage.getItem(DROPBOX_REFRESH_TOKEN_KEY) || "";
+        const startupExpiresAt = Number(localStorage.getItem(DROPBOX_EXPIRES_AT_KEY) || 0);
+
+        if (
+          startupRefreshToken &&
+          (!startupToken || (startupExpiresAt && Date.now() >= startupExpiresAt - 120000))
+        ) {
+          startupToken = await refreshDropboxAccessToken();
+        }
+
+        if (
+          startupToken &&
+          typeof initDropboxSync === "function" &&
+          !window.__aniDriveSyncStarted
+        ) {
+          window.__aniDriveSyncStarted = true;
+          try {
+            await initDropboxSync(true);
+          } catch (e) {
+            console.warn("Dropbox sync awal gagal, mencoba refresh otomatis:", e);
+            window.__aniDriveSyncStarted = false;
+            const refreshed = await refreshDropboxAccessToken();
+            if (refreshed) {
+              window.__aniDriveSyncStarted = true;
+              try {
+                await initDropboxSync(true);
+              } catch (retryErr) {
+                console.error("Dropbox sync retry gagal:", retryErr);
+                window.__aniDriveSyncStarted = false;
+              }
+            }
+          }
+        } else if (!startupToken && !startupRefreshToken) {
+          window.__aniDriveSyncStarted = false;
+        }
+      } catch (e) {
+        console.error("AniDrive startup error:", e);
+      }
+    })();
+    document.addEventListener("visibilitychange", async () => {
+      if (document.visibilityState !== "visible") return;
+      const token = localStorage.getItem(DROPBOX_TOKEN_KEY) || "";
+      if (!token || typeof initDropboxSync !== "function" || window.__aniDriveSyncStarted) return;
+      window.__aniDriveSyncStarted = true;
+      try {
+        await initDropboxSync(true);
+      } catch (e) {
+        console.warn("Sync Dropbox setelah kembali aktif gagal:", e);
+        window.__aniDriveSyncStarted = false;
+      }
+    });
+  </script>
+
+<script id="v15-fast-continue-thumbnails">
+(() => {
+  // V15: "Lanjutkan Menonton" memakai frame ASLI dari video pada 06:00.
+  // Tidak pernah memakai cover/poster. Thumbnail dimuat hanya saat kartu
+  // mendekati area terlihat agar startup tetap cepat.
+  function findContinueEpisode(item) {
+    const cats = (typeof categoriesData !== 'undefined' && categoriesData) ? categoriesData : {};
+    for (const cat of Object.keys(cats)) {
+      const found = (cats[cat] || []).find(anime =>
+        anime.title === item.animeTitle &&
+        (anime.episodes || []).some(ep => ep.name === item.epName)
+      );
+      if (found) return found.episodes.find(ep => ep.name === item.epName) || null;
+    }
+    return null;
+  }
+
+  window.renderContinueWatching = function() {
+    const section = document.getElementById('continue-watching-section');
+    const grid = document.getElementById('continue-watching-grid');
+    const list = (typeof cloudDatabase !== 'undefined' && cloudDatabase && cloudDatabase.continue_watching) ? cloudDatabase.continue_watching : [];
+    if (!section || !grid) return;
+
+    if (!list.length) {
+      section.classList.add('hidden');
+      grid.innerHTML = '';
+      return;
+    }
+
+    section.classList.remove('hidden');
+    grid.innerHTML = '';
+
+    list.forEach((item) => {
+      const ep = findContinueEpisode(item);
+      const streamUrl = ep?.sharedLinkPath
+        ? getSharedLinkDirectUrl(ep.sharedLinkPath)
+        : (item.fileUrl || '');
+      const thumbSource = ep ? ep : { id: streamUrl, name: item.epName };
+
+      const card = document.createElement('div');
+      card.className = 'flex-shrink-0 w-64 sm:w-72 rounded-xl overflow-hidden bg-black/50 border border-zinc-800 shadow-md flex flex-col group cursor-pointer snap-start transition hover:border-[#f47521]/60';
+      card.onclick = () => resumeContinueWatching(
+        streamUrl,
+        `${item.animeTitle} - ${item.epName}`,
+        item.subUrl || '',
+        item.currentTime || 0,
+        ep?.sharedLinkPath || item.sharedLinkPath || null
+      );
+
+      const progress = Math.max(0, Math.min(100, Number(item.progressPercent) || 0));
+      card.innerHTML = `
+        <div class="relative w-full aspect-video bg-zinc-950 overflow-hidden">
+          <video class="continue-video-thumb absolute inset-0 w-full h-full object-cover" muted playsinline preload="none" aria-label="Thumbnail ${item.epName} menit 6"></video>
+          <div class="continue-thumb-loading absolute inset-0 flex items-center justify-center pointer-events-none">
+            <div class="w-8 h-8 rounded-full border-2 border-zinc-600 border-t-[#f47521] animate-spin"></div>
+          </div>
+          <div class="absolute inset-0 bg-gradient-to-t from-black/80 via-black/10 to-transparent pointer-events-none"></div>
+          <div class="absolute inset-0 flex items-center justify-center pointer-events-none">
+            <div class="w-10 h-10 rounded-full bg-black/55 group-hover:bg-[#f47521] flex items-center justify-center transition border border-white/40 shadow">
+              <i data-lucide="play" class="w-5 h-5 fill-current text-white translate-x-0.5"></i>
+            </div>
+          </div>
+          <span class="absolute bottom-2 right-2 text-[10px] font-bold text-zinc-200 bg-black/80 px-1.5 py-0.5 rounded backdrop-blur-sm">${item.remainingText || `${progress}%`}</span>
+          <div class="absolute bottom-0 inset-x-0 h-1 bg-zinc-800"><div class="h-full bg-[#f47521]" style="width:${progress}%;"></div></div>
+        </div>
+        <div class="p-2.5 flex items-center justify-between bg-black/60 gap-2">
+          <div class="min-w-0 flex-1">
+            <h4 class="font-bold text-xs text-white truncate group-hover:text-[#f47521] transition"></h4>
+            <p class="text-[10px] text-zinc-400 truncate"></p>
+          </div>
+          <button class="continue-remove p-1 text-zinc-400 hover:text-red-400 transition" title="Hapus Riwayat"><i data-lucide="more-vertical" class="w-4 h-4"></i></button>
+        </div>`;
+
+      card.querySelector('h4').textContent = item.animeTitle || '';
+      card.querySelector('p').textContent = item.epName || '';
+      card.querySelector('.continue-remove').onclick = (e) => {
+        e.stopPropagation();
+        removeFromContinueWatching(item.animeTitle);
+      };
+
+      const video = card.querySelector('.continue-video-thumb');
+      const loader = card.querySelector('.continue-thumb-loading');
+      video.dataset.thumbKey = `${item.animeTitle}|${item.epName}|${item.timestamp || ''}`;
+      video._aniEp = thumbSource;
+      video._aniLoader = loader;
+      grid.appendChild(card);
+    });
+
+    lucide.createIcons();
+
+    const io = new IntersectionObserver((entries, observer) => {
+      entries.forEach(entry => {
+        if (!entry.isIntersecting) return;
+        const video = entry.target;
+        observer.unobserve(video);
+        const ep = video._aniEp;
+        if (ep && typeof loadEpisodeVideoFrame6 === 'function') {
+          loadEpisodeVideoFrame6(video, ep).finally(() => {
+            if (video._aniLoader) video._aniLoader.remove();
+          });
+        }
+      });
+    }, { root: grid, rootMargin: '0px 180px 0px 180px', threshold: 0.01 });
+
+    grid.querySelectorAll('.continue-video-thumb').forEach(v => io.observe(v));
+  };
+
+  // Pastikan history lama yang masih punya URL sementara tetap bisa memakai
+  // episode shared-link asli setelah katalog selesai dimuat.
+  const oldSaveProgress = window.saveProgress;
+  let lastProgressSaveAt = 0;
+  let lastProgressSecond = -1;
+  window.saveProgress = function(animeTitle, epName, fileUrl, subUrl, posterUrl, currentTime, duration) {
+    if (!duration || duration <= 0 || !currentTime) return;
+    const now = Date.now();
+    const sec = Math.floor(currentTime);
+    // timeupdate bisa terpanggil berkali-kali per detik. Simpan lokal/cloud
+    // maksimal tiap 10 detik agar CPU, storage, dan request jauh lebih ringan.
+    if ((now - lastProgressSaveAt) < 10000 && (sec - lastProgressSecond) < 10) return;
+    lastProgressSaveAt = now;
+    lastProgressSecond = sec;
+    if (!cloudDatabase.continue_watching) cloudDatabase.continue_watching = [];
+    let list = cloudDatabase.continue_watching.filter(item => item.animeTitle !== animeTitle);
+    const remainingSec = Math.max(0, duration - currentTime);
+    const remainingMin = Math.ceil(remainingSec / 60);
+    const sharedLinkPath = currentPlayingInfo?.sharedLinkPath || null;
+    list.unshift({
+      animeTitle, epName, fileUrl, sharedLinkPath, subUrl,
+      posterUrl: '', currentTime: Math.floor(currentTime), duration: Math.floor(duration),
+      progressPercent: Math.min(100, Math.round((currentTime / duration) * 100)),
+      remainingText: `${remainingMin}m tersisa`, timestamp: Date.now()
+    });
+    cloudDatabase.continue_watching = list.slice(0, 15);
+    renderContinueWatching();
+    syncDbToCloud();
+  };
+
+  // Override helper supaya riwayat lama juga tidak tergantung URL temporary.
+  window.resumeContinueWatching = function(fileUrl, title, subUrl, resumeTime, sharedLinkPath = null) {
+    const info = {
+      animeTitle: title.split(' - ')[0] || title,
+      epName: title.split(' - ')[1] || 'Episode',
+      posterUrl: '', sharedLinkPath: sharedLinkPath || null
+    };
+    const resolvedUrl = sharedLinkPath ? getSharedVideoDirectUrl(sharedLinkPath) : fileUrl;
+    openPlayer(resolvedUrl, title, subUrl, resumeTime, info);
+  };
+})();
+</script>
+
+
+
+</body>
+</html>
